@@ -1,0 +1,27 @@
+﻿
+:root {
+  --bg:           #FFFFFF;
+  --bg-2:         #F7F7F5;
+  --bg-3:         #EFEFEC;
+
+  --ink:          #0D0D0D;
+  --ink-2:        #1A1A1A;
+  --ink-dim:      #4A4A4A;
+  --ink-muted:    #8C8C8C;
+  --ink-ghost:    #C4C4C0;
+
+  --border:       rgba(13,13,13,0.08);
+  --border-mid:   rgba(13,13,13,0.14);
+  --border-hard:  rgba(13,13,13,0.22);
+
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+
+  --sh-sm: 0 1px 4px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.05);
+  --sh-md: 0 2px 8px rgba(0,0,0,0.04), 0 12px 40px rgba(0,0,0,0.08);
+
+  --nav-h: 68px;
+}
+

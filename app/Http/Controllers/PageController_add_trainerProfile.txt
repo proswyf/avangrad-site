@@ -1,0 +1,6 @@
+// В PageController реализуем метод для профиля тренера
+public function trainerProfile($id)
+{
+    $trainer = \App\Models\Trainer::findOrFail($id);
+    return view('pages.trainer-profile', compact('trainer'));
+}

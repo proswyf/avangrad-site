@@ -1,0 +1,296 @@
+﻿@import url('/css/base/tokens.css');
+
+/* в•ђв•ђ PAGE WRAP в•ђв•ђ */
+.tariffs-page-wrap {
+  background: var(--bg-2);
+  min-height: 100vh;
+  padding: 80px 0 96px;
+}
+
+.tariffs-page-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+
+/* в•ђв•ђ HEAD в•ђв•ђ */
+.tariffs-page-head {
+  margin-bottom: 56px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.tariffs-page-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .62rem;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 16px;
+}
+.tariffs-page-label::before {
+  content: '';
+  width: 18px; height: 1px;
+  background: var(--ink-ghost);
+  flex-shrink: 0;
+}
+
+.tariffs-page-heading {
+  font-family: 'Geologica', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  letter-spacing: -.03em;
+  line-height: .95;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+.tariffs-page-sub {
+  font-size: .90rem;
+  color: var(--ink-muted);
+  font-weight: 300;
+  line-height: 1.7;
+  max-width: 420px;
+}
+
+/* в•ђв•ђ BACK в•ђв•ђ */
+.tariffs-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: var(--r-xs);
+  border: 1px solid var(--border-hard);
+  background: transparent;
+  color: var(--ink-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: .78rem;
+  font-weight: 500;
+  letter-spacing: .04em;
+  text-decoration: none;
+  transition: all .22s ease;
+  white-space: nowrap;
+  align-self: flex-start;
+}
+.tariffs-back:hover {
+  background: var(--bg-3);
+  color: var(--ink);
+  border-color: var(--border-hard);
+}
+.tariffs-back svg { transition: transform .2s ease; }
+.tariffs-back:hover svg { transform: translateX(-3px); }
+
+/* в•ђв•ђ NOTICE в•ђв•ђ */
+.current-tariff-notice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 22px;
+  background: var(--bg);
+  border: 1px solid var(--border-mid);
+  border-left: 3px solid var(--ink);
+  border-radius: var(--r-md);
+  margin-bottom: 32px;
+}
+.current-tariff-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--ink);
+  flex-shrink: 0;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+.current-tariff-text {
+  font-size: .84rem;
+  color: var(--ink-muted);
+  font-weight: 300;
+}
+.current-tariff-text strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* в•ђв•ђ GRID вЂ” РѕРїСЂРµРґРµР»С‘РЅ Р·РґРµСЃСЊ, РЅРµ РЅР°СЃР»РµРґСѓРµС‚СЃСЏ в•ђв•ђ */
+.tp-tariffs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  align-items: stretch; 
+}
+
+/* в•ђв•ђ CARD в•ђв•ђ */
+.tp-tariff-card {
+  background: var(--bg);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--r-lg);
+  padding: 28px 26px;
+  display: flex;
+   height: 100%;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--sh-sm);
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+.tp-tariff-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sh-md);
+}
+
+/* Popular */
+.tp-tariff-card.popular {
+  border-color: var(--border-hard);
+  box-shadow: var(--sh-md);
+}
+.tp-tariff-card.popular::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--ink);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+.tp-tariff-card.popular::before {
+  content: 'Популярный';
+  position: absolute;
+  top: 0; right: 0;
+  font-size: .58rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--ink);
+  padding: 6px 14px;
+  border-bottom-left-radius: var(--r-md);
+  z-index: 1;
+}
+
+/* Current */
+.tp-tariff-card.current {
+  border-color: var(--border-hard);
+  box-shadow: var(--sh-md);
+}
+.tp-current-line {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--ink);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+.tp-current-badge {
+  position: absolute;
+  top: 0; right: 0;
+  font-size: .58rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--ink);
+  padding: 6px 14px;
+  border-bottom-left-radius: var(--r-md);
+  z-index: 1;
+}
+
+/* Card internals */
+.tp-tariff-name {
+  font-size: .60rem;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 20px;
+}
+.tp-tariff-price {
+  font-family: 'Geologica', sans-serif;
+  font-size: 2.6rem;
+  color: var(--ink);
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -.03em;
+  margin-bottom: 4px;
+}
+.tp-tariff-price sub {
+  font-size: 1rem;
+  vertical-align: middle;
+  opacity: .45;
+  font-weight: 400;
+  font-family: 'DM Sans', sans-serif;
+}
+.tp-tariff-period {
+  font-size: .80rem;
+  color: var(--ink-muted);
+  font-weight: 300;
+  margin-bottom: 26px;
+}
+
+.tp-features {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 24px;
+  flex: 1;
+}
+.tp-feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink-dim);
+  font-size: .84rem;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+.tp-feature:last-child { border-bottom: none; }
+.tp-feature--off { opacity: .38; }
+.tp-feature-icon {
+  width: 16px; height: 16px;
+  border-radius: 3px;
+  background: var(--bg-2);
+  color: var(--ink);
+  font-size: .62rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Button */
+.tp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  border-radius: var(--r-xs);
+  background: var(--ink);
+  border: 1px solid transparent;
+  color: #fff;
+  text-decoration: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .80rem;
+  font-weight: 600;
+  letter-spacing: .05em;
+  width: 100%;
+  cursor: pointer;
+  transition: all .22s ease;
+}
+.tp-btn:hover {
+  background: rgba(13,13,13,0.82);
+  transform: translateY(-1px);
+}
+
+/* в•ђв•ђ RESPONSIVE в•ђв•ђ */
+@media (max-width: 1024px) {
+  .tariffs-page-inner { padding: 0 32px; }
+}
+@media (max-width: 768px) {
+  .tariffs-page-wrap { padding: 64px 0 72px; }
+  .tariffs-page-head { flex-direction: column; align-items: flex-start; }
+  .tp-tariffs-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 576px) {
+  .tariffs-page-inner { padding: 0 20px; }
+}

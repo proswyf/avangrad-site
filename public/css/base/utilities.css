@@ -1,0 +1,64 @@
+﻿/* в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+   GLOBAL UTILITY вЂ” for non-home pages
+в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 48px;
+  width: 100%;
+}
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: #fff;
+  box-shadow: var(--sh-sm);
+  overflow: hidden;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0;
+}
+
+.inline-form { display: inline; }
+.overflow-auto-x { overflow-x: auto; }
+
+.full-width-text-center {
+  width: 100%;
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--ink-muted);
+  font-size: .94rem;
+  grid-column: 1 / -1;
+}
+
+.empty-state-block {
+  width: 100%;
+  padding: 72px 24px;
+  text-align: center;
+  border-radius: var(--r-lg);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+}
+.empty-state-text { color: var(--ink-muted); font-size: .94rem; }
+
+.display-none { display: none; }
+
+.form-full-width {
+  width: 100%;
+}
+
+.object-cover {
+  object-fit: cover;
+}
+
+/* Bootstrap alert override вЂ” make it match our system */
+.alert {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-sm);
+  font-size: .88rem;
+}
+
