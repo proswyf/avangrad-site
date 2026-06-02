@@ -121,7 +121,7 @@ body>.navbar,
   right: 0;
   height: var(--nav-h);
   z-index: 1000;
-  background: transparent !important;
+  background: rgba(255, 255, 255, 0.94)  !important;
   border-bottom: 1px solid transparent;
   backdrop-filter: none;
   transition:
