@@ -410,6 +410,40 @@
     </div>
   </section>
 
+  @if($homeReviews->isNotEmpty())
+    <div class="section-rule"></div>
+    <section class="section-wrap alt">
+      <div class="section-inner">
+        <div class="section-head reveal">
+          <div class="section-head-left">
+            <div class="label">Отзывы</div>
+            <h2 class="heading-xl">Клиенты о наших тренерах</h2>
+            <p class="subtext">Публикуем только прошедшие модерацию отзывы о персональных тренировках.</p>
+          </div>
+        </div>
+
+        <div class="home-reviews-grid">
+          @foreach($homeReviews as $review)
+            <article class="home-review-card reveal-card">
+              <div class="home-review-stars">
+                @for($i = 1; $i <= 5; $i++)
+                  {{ $i <= $review->rating ? '★' : '☆' }}
+                @endfor
+              </div>
+              <p class="home-review-text">{{ $review->text }}</p>
+              <div class="home-review-meta">
+                <div class="home-review-author">{{ $review->name }}</div>
+                <a href="{{ route('trainer.profile', $review->trainer->id) }}" class="home-review-trainer">
+                  {{ $review->trainer->name }}
+                </a>
+              </div>
+            </article>
+          @endforeach
+        </div>
+      </div>
+    </section>
+  @endif
+
 @endsection
 
 

@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\TrainerController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\TrainerReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(PageController::class)->group(function () {
@@ -39,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::post('/cancel-promotion', [DashboardController::class, 'cancelPromotion'])->name('cancel-promotion');
     Route::delete('/trainer-booking/{id}/cancel', [DashboardController::class, 'cancelTrainerBooking'])->name('cancel-trainer-booking');
+    Route::post('/trainer/{trainerId}/reviews', [TrainerReviewController::class, 'store'])->name('trainer.reviews.store');
 
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/dashboard', 'index')->name('dashboard');
@@ -90,6 +92,11 @@ Route::middleware(['auth', 'admin'])
                 Route::get('/{id}', 'showTrainerBooking')->name('trainer-bookings.show');
                 Route::put('/{id}/status', 'updateTrainerBookingStatus')->name('trainer-bookings.status');
                 Route::delete('/{id}', 'deleteTrainerBooking')->name('trainer-bookings.delete');
+            });
+
+            Route::prefix('trainer-reviews')->name('trainer-reviews.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Admin\TrainerReviewController::class, 'index'])->name('index');
+                Route::put('/{id}', [\App\Http\Controllers\Admin\TrainerReviewController::class, 'update'])->name('update');
             });
         });
 

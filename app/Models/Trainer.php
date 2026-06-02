@@ -15,22 +15,45 @@ class Trainer extends Model
         'name',
         'slug',
         'position',
+        'bio',
         'experience',
         'specialization',
         'certificates',
         'quote',
         'image',
+        'methodology',
+        'achievements',
+        'price',
+        'rating',
+        'clients_count',
+        'sessions_count',
+        'formats',
+        'image_url',
+        'education',
+        'instagram',
+        'telegram',
+        'training_format',
         'is_active',
-        'sort_order'
+        'sort_order',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'price' => 'decimal:2',
+        'rating' => 'decimal:1',
+        'clients_count' => 'integer',
+        'sessions_count' => 'integer',
     ];
     public function reviews()
     {
         return $this->hasMany(\App\Models\TrainerReview::class);
     }
+
+    public function approvedReviews()
+    {
+        return $this->reviews()->where('status', 'approved');
+    }
+
     public function getImageUrlAttribute(): ?string
     {
         if (blank($this->image)) {

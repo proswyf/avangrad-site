@@ -55,6 +55,11 @@
                 <div class="menu-title">Заявки к тренерам</div>
                 <div class="menu-desc">Управление заявками на тренировки</div>
             </a>
+
+            <a href="{{ route('admin.trainer-reviews.index') }}" class="menu-card">
+                <div class="menu-title">Отзывы о тренерах</div>
+                <div class="menu-desc">Модерация и публикация отзывов</div>
+            </a>
         </div>
     </div>
     <br><br>
@@ -74,6 +79,10 @@
         <div class="stat-card">
             <div class="stat-number">{{ $stats['trainers'] }}</div>
             <div class="stat-label">Тренеров</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ $stats['pending_trainer_reviews'] }}</div>
+            <div class="stat-label">Отзывы на модерации</div>
         </div>
         <div class="stat-card">
             <div class="stat-number">{{ $stats['faqs'] }}</div>

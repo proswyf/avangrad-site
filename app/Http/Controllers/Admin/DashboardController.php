@@ -9,22 +9,28 @@ use App\Models\Promotion;
 use App\Models\GroupClass;
 use App\Models\Trainer;
 use App\Models\TrainerBooking;
+use App\Models\TrainerReview;
 use App\Models\Faq;
 use App\Models\User;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends Controller
 {
     public function index()
 {
+    $reviewsReady = $this->trainerReviewsReady();
+
     $stats = [
         'tariffs' => Tariff::count(),
         'promotions' => Promotion::count(),
         'classes' => GroupClass::count(),
         'trainers' => Trainer::count(),
+        'trainer_reviews' => $reviewsReady ? TrainerReview::count() : 0,
+        'pending_trainer_reviews' => $reviewsReady ? TrainerReview::pending()->count() : 0,
         'faqs' => Faq::count(),
         'users' => User::count(),
     ];
@@ -320,5 +326,12 @@ public function updateBooking(Request $request, $id)
     ]);
     
     return redirect()->route('admin.bookings')->with('success', 'Запись обновлена');
+}
+
+private function trainerReviewsReady(): bool
+{
+    return Schema::hasTable('trainer_reviews')
+        && Schema::hasColumn('trainer_reviews', 'status')
+        && Schema::hasColumn('trainer_reviews', 'rating');
 }
 }

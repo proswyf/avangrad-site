@@ -8,7 +8,9 @@ use App\Models\GroupClass;
 use App\Models\Promotion;
 use App\Models\Tariff;
 use App\Models\Trainer;
+use App\Models\TrainerReview;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class PageController extends Controller
 {
@@ -22,40 +24,64 @@ class PageController extends Controller
             ->orderBy('sort_order')
             ->get();
         $classes = GroupClass::where('is_active', true)->get();
-        $trainers = Trainer::where('is_active', true)->orderBy('sort_order')->get();
+
+        $trainersQuery = Trainer::where('is_active', true)->orderBy('sort_order');
+        $homeReviews = collect();
+
+        if ($this->trainerReviewsReady()) {
+            $trainersQuery
+                ->withCount('approvedReviews')
+                ->withAvg('approvedReviews as approved_rating', 'rating');
+
+            $homeReviews = TrainerReview::approved()
+                ->with('trainer')
+                ->latest('moderated_at')
+                ->latest()
+                ->take(6)
+                ->get();
+        }
+
+        $trainers = $trainersQuery->get();
         $faqs = Faq::where('is_active', true)->orderBy('sort_order')->get();
         $faqsByCategory = $faqs->groupBy('category');
 
-        return view('pages.home', compact('tariffs', 'promotions', 'classes', 'trainers', 'faqsByCategory'));
+        return view('pages.home', compact('tariffs', 'promotions', 'classes', 'trainers', 'homeReviews', 'faqsByCategory'));
     }
-    
 
     public function trainerProfile($id)
     {
-        $trainer = Trainer::findOrFail($id);
+        $trainerQuery = Trainer::query();
+        $reviews = collect();
+        $userReview = null;
 
-        $reviews = $trainer->reviews()->latest()->get();
+        if ($this->trainerReviewsReady()) {
+            $trainerQuery
+                ->withCount('approvedReviews')
+                ->withAvg('approvedReviews as approved_rating', 'rating');
+        }
 
-        $otherTrainers = Trainer::where('is_active', true)
-            ->where('id', '!=', $trainer->id)
-            ->orderBy('sort_order')
-            ->take(6)
-            ->get();
+        $trainer = $trainerQuery->findOrFail($id);
 
-        return view('pages.trainer-profile', compact(
-            'trainer',
-            'reviews',
-            'otherTrainers'
-        ));
+        if ($this->trainerReviewsReady()) {
+            $reviews = $trainer->approvedReviews()->latest()->get();
+
+            if (Auth::check()) {
+                $userReview = $trainer->reviews()
+                    ->where('user_id', Auth::id())
+                    ->latest()
+                    ->first();
+            }
+        }
+
+        return view('pages.trainer-profile', compact('trainer', 'reviews', 'userReview'));
     }
-    
+
     public function tariffs()
     {
         $tariffs = Tariff::where('is_active', true)->orderBy('sort_order')->get();
 
         return view('pages.tariffs', compact('tariffs'));
     }
-    
 
     public function promotions()
     {
@@ -106,5 +132,12 @@ class PageController extends Controller
     public function register()
     {
         return view('pages.register');
+    }
+
+    private function trainerReviewsReady(): bool
+    {
+        return Schema::hasTable('trainer_reviews')
+            && Schema::hasColumn('trainer_reviews', 'status')
+            && Schema::hasColumn('trainer_reviews', 'rating');
     }
 }
