@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\ClubReview;
 use App\Models\Faq;
 use App\Models\GroupClass;
 use App\Models\Promotion;
 use App\Models\Tariff;
 use App\Models\Trainer;
-use App\Models\TrainerReview;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 
@@ -26,26 +26,42 @@ class PageController extends Controller
         $classes = GroupClass::where('is_active', true)->get();
 
         $trainersQuery = Trainer::where('is_active', true)->orderBy('sort_order');
-        $homeReviews = collect();
+        $clubReviews = collect();
+        $userClubReview = null;
 
         if ($this->trainerReviewsReady()) {
             $trainersQuery
                 ->withCount('approvedReviews')
                 ->withAvg('approvedReviews as approved_rating', 'rating');
+        }
 
-            $homeReviews = TrainerReview::approved()
-                ->with('trainer')
+        if ($this->clubReviewsReady()) {
+            $clubReviews = ClubReview::approved()
                 ->latest('moderated_at')
                 ->latest()
                 ->take(6)
                 ->get();
+
+            if (Auth::check()) {
+                $userClubReview = ClubReview::where('user_id', Auth::id())
+                    ->latest()
+                    ->first();
+            }
         }
 
         $trainers = $trainersQuery->get();
         $faqs = Faq::where('is_active', true)->orderBy('sort_order')->get();
         $faqsByCategory = $faqs->groupBy('category');
 
-        return view('pages.home', compact('tariffs', 'promotions', 'classes', 'trainers', 'homeReviews', 'faqsByCategory'));
+        return view('pages.home', compact(
+            'tariffs',
+            'promotions',
+            'classes',
+            'trainers',
+            'clubReviews',
+            'userClubReview',
+            'faqsByCategory'
+        ));
     }
 
     public function trainerProfile($id)
@@ -111,7 +127,15 @@ class PageController extends Controller
 
     public function trainers()
     {
-        $trainers = Trainer::where('is_active', true)->orderBy('sort_order')->get();
+        $trainersQuery = Trainer::where('is_active', true)->orderBy('sort_order');
+
+        if ($this->trainerReviewsReady()) {
+            $trainersQuery
+                ->withCount('approvedReviews')
+                ->withAvg('approvedReviews as approved_rating', 'rating');
+        }
+
+        $trainers = $trainersQuery->get();
 
         return view('pages.trainers', compact('trainers'));
     }
@@ -139,5 +163,12 @@ class PageController extends Controller
         return Schema::hasTable('trainer_reviews')
             && Schema::hasColumn('trainer_reviews', 'status')
             && Schema::hasColumn('trainer_reviews', 'rating');
+    }
+
+    private function clubReviewsReady(): bool
+    {
+        return Schema::hasTable('club_reviews')
+            && Schema::hasColumn('club_reviews', 'status')
+            && Schema::hasColumn('club_reviews', 'rating');
     }
 }

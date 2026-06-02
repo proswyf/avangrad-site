@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\TariffController;
 use App\Http\Controllers\Admin\TrainerController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClubReviewController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\TrainerReviewController;
@@ -41,6 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/cancel-promotion', [DashboardController::class, 'cancelPromotion'])->name('cancel-promotion');
     Route::delete('/trainer-booking/{id}/cancel', [DashboardController::class, 'cancelTrainerBooking'])->name('cancel-trainer-booking');
     Route::post('/trainer/{trainerId}/reviews', [TrainerReviewController::class, 'store'])->name('trainer.reviews.store');
+    Route::post('/club-reviews', [ClubReviewController::class, 'store'])->name('club-reviews.store');
 
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/dashboard', 'index')->name('dashboard');
@@ -97,6 +99,11 @@ Route::middleware(['auth', 'admin'])
             Route::prefix('trainer-reviews')->name('trainer-reviews.')->group(function () {
                 Route::get('/', [\App\Http\Controllers\Admin\TrainerReviewController::class, 'index'])->name('index');
                 Route::put('/{id}', [\App\Http\Controllers\Admin\TrainerReviewController::class, 'update'])->name('update');
+            });
+
+            Route::prefix('club-reviews')->name('club-reviews.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Admin\ClubReviewController::class, 'index'])->name('index');
+                Route::put('/{id}', [\App\Http\Controllers\Admin\ClubReviewController::class, 'update'])->name('update');
             });
         });
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 
 use App\Http\Controllers\Controller;
+use App\Models\ClubReview;
 use App\Models\Tariff;
 use App\Models\Promotion;
 use App\Models\GroupClass;
@@ -20,9 +21,10 @@ use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends Controller
 {
-    public function index()
+public function index()
 {
     $reviewsReady = $this->trainerReviewsReady();
+    $clubReviewsReady = $this->clubReviewsReady();
 
     $stats = [
         'tariffs' => Tariff::count(),
@@ -31,6 +33,8 @@ class DashboardController extends Controller
         'trainers' => Trainer::count(),
         'trainer_reviews' => $reviewsReady ? TrainerReview::count() : 0,
         'pending_trainer_reviews' => $reviewsReady ? TrainerReview::pending()->count() : 0,
+        'club_reviews' => $clubReviewsReady ? ClubReview::count() : 0,
+        'pending_club_reviews' => $clubReviewsReady ? ClubReview::pending()->count() : 0,
         'faqs' => Faq::count(),
         'users' => User::count(),
     ];
@@ -333,5 +337,12 @@ private function trainerReviewsReady(): bool
     return Schema::hasTable('trainer_reviews')
         && Schema::hasColumn('trainer_reviews', 'status')
         && Schema::hasColumn('trainer_reviews', 'rating');
+}
+
+private function clubReviewsReady(): bool
+{
+    return Schema::hasTable('club_reviews')
+        && Schema::hasColumn('club_reviews', 'status')
+        && Schema::hasColumn('club_reviews', 'rating');
 }
 }

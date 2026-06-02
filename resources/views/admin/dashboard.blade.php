@@ -60,6 +60,11 @@
                 <div class="menu-title">Отзывы о тренерах</div>
                 <div class="menu-desc">Модерация и публикация отзывов</div>
             </a>
+
+            <a href="{{ route('admin.club-reviews.index') }}" class="menu-card">
+                <div class="menu-title">Отзывы о клубе</div>
+                <div class="menu-desc">Модерация отзывов для главной страницы</div>
+            </a>
         </div>
     </div>
     <br><br>
@@ -83,6 +88,10 @@
         <div class="stat-card">
             <div class="stat-number">{{ $stats['pending_trainer_reviews'] }}</div>
             <div class="stat-label">Отзывы на модерации</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ $stats['pending_club_reviews'] }}</div>
+            <div class="stat-label">Отзывы о клубе на модерации</div>
         </div>
         <div class="stat-card">
             <div class="stat-number">{{ $stats['faqs'] }}</div>

@@ -410,39 +410,108 @@
     </div>
   </section>
 
-  @if($homeReviews->isNotEmpty())
-    <div class="section-rule"></div>
-    <section class="section-wrap alt">
-      <div class="section-inner">
-        <div class="section-head reveal">
-          <div class="section-head-left">
-            <div class="label">Отзывы</div>
-            <h2 class="heading-xl">Клиенты о наших тренерах</h2>
-            <p class="subtext">Публикуем только прошедшие модерацию отзывы о персональных тренировках.</p>
-          </div>
-        </div>
-
-        <div class="home-reviews-grid">
-          @foreach($homeReviews as $review)
-            <article class="home-review-card reveal-card">
-              <div class="home-review-stars">
-                @for($i = 1; $i <= 5; $i++)
-                  {{ $i <= $review->rating ? '★' : '☆' }}
-                @endfor
-              </div>
-              <p class="home-review-text">{{ $review->text }}</p>
-              <div class="home-review-meta">
-                <div class="home-review-author">{{ $review->name }}</div>
-                <a href="{{ route('trainer.profile', $review->trainer->id) }}" class="home-review-trainer">
-                  {{ $review->trainer->name }}
-                </a>
-              </div>
-            </article>
-          @endforeach
+  <div class="section-rule"></div>
+  <section class="section-wrap alt">
+    <div class="section-inner">
+      <div class="section-head reveal">
+        <div class="section-head-left">
+          <div class="label">Отзывы</div>
+          <h2 class="heading-xl">Что говорят о клубе</h2>
+          <p class="subtext home-reviews-subtext">Общая атмосфера, оборудование, чистота и комфорт важны не меньше самих тренировок.</p>
         </div>
       </div>
-    </section>
-  @endif
+
+      <div class="home-reviews-shell">
+        <div class="home-reviews-list">
+          @if($clubReviews->isNotEmpty())
+            <div class="home-reviews-grid">
+              @foreach($clubReviews as $review)
+                <article class="home-review-card reveal-card">
+                  <div class="home-review-stars">
+                    @for($i = 1; $i <= 5; $i++)
+                      {{ $i <= $review->rating ? '★' : '☆' }}
+                    @endfor
+                  </div>
+                  <p class="home-review-text">{{ $review->text }}</p>
+                  <div class="home-review-meta">
+                    <div class="home-review-author">{{ $review->name }}</div>
+                    <div class="home-review-caption">{{ $review->created_at->format('d.m.Y') }}</div>
+                  </div>
+                </article>
+              @endforeach
+            </div>
+          @else
+            <div class="home-review-empty">
+              Пока нет опубликованных отзывов о клубе. Будьте первым, кто поделится впечатлением.
+            </div>
+          @endif
+        </div>
+
+        <aside class="home-review-form-card reveal">
+          <div class="home-review-form-head">
+            <h3>Оставить отзыв о клубе</h3>
+            <p>Отзыв появится на главной странице после проверки администратором.</p>
+          </div>
+
+          @auth
+            @if($userClubReview && $userClubReview->status === 'pending')
+              <div class="home-review-state home-review-state--pending">
+                Ваш отзыв уже отправлен и ожидает модерации.
+              </div>
+            @elseif($userClubReview && $userClubReview->status === 'approved')
+              <div class="home-review-state home-review-state--approved">
+                Ваш отзыв уже опубликован. Спасибо за обратную связь.
+              </div>
+            @else
+              @if($userClubReview && $userClubReview->status === 'rejected')
+                <div class="home-review-state home-review-state--rejected">
+                  Предыдущий отзыв был отклонен.
+                  @if($userClubReview->moderation_note)
+                    Причина: {{ $userClubReview->moderation_note }}
+                  @endif
+                </div>
+              @endif
+
+              <form method="POST" action="{{ route('club-reviews.store') }}" class="home-review-form">
+                @csrf
+
+                <div class="home-review-field">
+                  <label for="club-review-rating">Оценка</label>
+                  <select id="club-review-rating" name="rating" class="home-review-control" required>
+                    <option value="">Выберите оценку</option>
+                    @for($i = 5; $i >= 1; $i--)
+                      <option value="{{ $i }}" @selected((int) old('rating') === $i)>{{ $i }} из 5</option>
+                    @endfor
+                  </select>
+                </div>
+
+                <div class="home-review-field">
+                  <label for="club-review-text">Отзыв</label>
+                  <textarea
+                    id="club-review-text"
+                    name="text"
+                    rows="6"
+                    minlength="20"
+                    maxlength="1500"
+                    class="home-review-control home-review-control--textarea"
+                    placeholder="Расскажите, как вам атмосфера, оборудование, чистота, бассейн, спа-зона или общий комфорт клуба."
+                    required
+                  >{{ old('text') }}</textarea>
+                </div>
+
+                <button type="submit" class="home-review-submit">Отправить на модерацию</button>
+              </form>
+            @endif
+          @else
+            <div class="home-review-state">
+              Оставлять отзывы могут только зарегистрированные пользователи.
+            </div>
+            <a href="{{ route('login') }}" class="home-review-login">Войти</a>
+          @endauth
+        </aside>
+      </div>
+    </div>
+  </section>
 
 @endsection
 

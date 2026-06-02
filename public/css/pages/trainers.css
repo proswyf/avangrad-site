@@ -164,10 +164,57 @@
   inset: 0;
   background: linear-gradient(
     180deg,
+    rgba(0,0,0,0.05) 0%,
     transparent 48%,
     rgba(0,0,0,0.20) 100%
   );
   pointer-events: none;
+}
+
+.trainer-topline {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.trainer-rating-badge,
+.trainer-price-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.92);
+  color: var(--ink);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.trainer-rating-badge {
+  flex-wrap: wrap;
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.trainer-rating-star {
+  color: #c18b16;
+}
+
+.trainer-rating-count {
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+
+.trainer-price-badge {
+  font-size: .72rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 /* EXPERIENCE BADGE */
@@ -214,8 +261,14 @@
   padding: 22px 24px 24px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   flex: 1;
+}
+
+.trainer-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .trainer-name {
@@ -260,6 +313,19 @@
   white-space: nowrap;
 }
 
+.trainer-tag--accent {
+  background: #f4efe2;
+  color: #7a5a12;
+  border-color: rgba(122, 90, 18, 0.14);
+}
+
+.trainer-summary {
+  margin: 0;
+  font-size: .84rem;
+  color: var(--ink-dim);
+  line-height: 1.65;
+}
+
 /* QUOTE */
 .trainer-quote {
   font-size: .84rem;
@@ -270,12 +336,42 @@
   flex: 1;
 
   margin: 0;
+  padding-left: 12px;
+  border-left: 2px solid var(--border-mid);
 }
 
 /* ACTION */
 .trainer-action {
   margin-top: auto;
-  padding-top: 4px;
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.trainer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+.trainer-link:hover {
+  color: var(--ink);
+  opacity: .8;
+}
+
+.trainer-link svg {
+  transition: transform .2s ease;
+}
+
+.trainer-link:hover svg {
+  transform: translateX(3px);
 }
 
 /* BUTTON */
@@ -383,7 +479,16 @@
   }
 
   .trainer-tags {
+    gap: 8px;
+  }
+
+  .trainer-topline {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .trainer-rating-badge,
+  .trainer-price-badge {
+    max-width: 100%;
   }
 }

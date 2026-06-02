@@ -31,34 +31,56 @@
             <div class="tr-grid">
                 @forelse($trainers as $trainer)
                     <div class="trainer-card reveal-card">
-                        {{-- Photo --}}
                         <div class="trainer-photo">
                             <img src="{{ $trainer->image_url }}" alt="{{ $trainer->name }}">
                             <div class="trainer-photo-overlay" aria-hidden="true"></div>
+                            <div class="trainer-topline">
+                                <div class="trainer-rating-badge">
+                                    @if(($trainer->approved_reviews_count ?? 0) > 0)
+                                        <span class="trainer-rating-star">★</span>
+                                        <span>{{ number_format((float) $trainer->approved_rating, 1) }}</span>
+                                        <span class="trainer-rating-count">· {{ $trainer->approved_reviews_count }} отзыв(ов)</span>
+                                    @else
+                                        <span>Новый тренер</span>
+                                    @endif
+                                </div>
+
+                                @if($trainer->price)
+                                    <div class="trainer-price-badge">{{ number_format((float) $trainer->price, 0, '', ' ') }} ₽</div>
+                                @endif
+                            </div>
+
                             <div class="trainer-exp-badge">
                                 <span class="trainer-exp-num">{{ $trainer->experience }}</span>
                                 <span class="trainer-exp-lbl">лет<br>опыта</span>
                             </div>
                         </div>
 
-                        {{-- Body --}}
                         <div class="trainer-body">
-                            <div class="trainer-name">{{ $trainer->name }}</div>
-                            <div class="trainer-role">{{ $trainer->position }}</div>
+                            <div class="trainer-head">
+                                <div class="trainer-name">{{ $trainer->name }}</div>
+                                <div class="trainer-role">{{ $trainer->position }}</div>
+                            </div>
 
                             <div class="trainer-tags">
-                                @if($trainer->specialization)
-                                    <span class="trainer-tag">{{ $trainer->specialization }}</span>
-                                @endif
+                                @foreach(collect(explode(',', (string) $trainer->specialization))->map(fn ($item) => trim($item))->filter()->take(3) as $tag)
+                                    <span class="trainer-tag">{{ $tag }}</span>
+                                @endforeach
                                 @if($trainer->certificates)
-                                    <span class="trainer-tag">{{ $trainer->certificates }}</span>
+                                    <span class="trainer-tag trainer-tag--accent">Сертификаты</span>
                                 @endif
                             </div>
 
-                            <blockquote class="trainer-quote">"{{ $trainer->quote }}"</blockquote>
+                            @if($trainer->bio)
+                                <p class="trainer-summary">{{ \Illuminate\Support\Str::limit($trainer->bio, 120) }}</p>
+                            @endif
+
+                            @if($trainer->quote)
+                                <blockquote class="trainer-quote">"{{ $trainer->quote }}"</blockquote>
+                            @endif
 
                             <div class="trainer-action">
-                                 <a href="{{ route('trainer.profile', $trainer->id) }}" class="text-dark mb-3">
+                                <a href="{{ route('trainer.profile', $trainer->id) }}" class="trainer-link">
                                     Подробнее о тренере
                                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                                         <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.4"
@@ -74,7 +96,7 @@
                                         </svg>
                                     </a>
                                 @else
-                                    <a href="{{ route('book-trainer.form', $trainer->id) }}" class="trainer-btn trainer-btn--ghost">
+                                    <a href="{{ route('login') }}" class="trainer-btn trainer-btn--ghost">
                                         Войти для записи
                                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                                             <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.4"
