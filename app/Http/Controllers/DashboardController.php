@@ -15,7 +15,6 @@ use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
 {
-
     public function index()
     {
         /** @var User $user */
@@ -30,6 +29,7 @@ class DashboardController extends Controller
 
         return view('dashboard.index', compact('user', 'upcomingTrainerBookings'));
     }
+
     public function cancelTrainerBooking($id)
     {
         /** @var User $user */
@@ -44,6 +44,7 @@ class DashboardController extends Controller
 
         return redirect()->back()->with('success', 'Запись к тренеру отменена.');
     }
+
     public function cancelPromotion()
     {
         /** @var User $user */
@@ -63,19 +64,54 @@ class DashboardController extends Controller
         return view('dashboard.choose-tariff', compact('tariffs', 'user'));
     }
 
+    public function tariffPayment(Request $request)
+    {
+        $validated = $request->validate([
+            'tariff' => [
+                'required',
+                'string',
+                Rule::exists('tariffs', 'name')->where(function ($query) {
+                    $query->where('is_active', true);
+                }),
+            ],
+        ]);
+
+        /** @var User $user */
+        $user = Auth::user();
+        $tariff = Tariff::where('name', $validated['tariff'])
+            ->where('is_active', true)
+            ->firstOrFail();
+        $nextExpiryDate = $this->calculateTariffExpiryDate($user);
+
+        return view('dashboard.tariff-payment', compact('user', 'tariff', 'nextExpiryDate'));
+    }
+
     public function activateTariff(Request $request)
     {
         $request->validate([
-            'tariff' => 'required|string',
+            'tariff' => [
+                'required',
+                'string',
+                Rule::exists('tariffs', 'name')->where(function ($query) {
+                    $query->where('is_active', true);
+                }),
+            ],
+            'card_holder' => 'required|string|max:255',
+            'card_number' => ['required', 'string', 'regex:/^[0-9 ]{16,23}$/'],
+            'card_expiry' => ['required', 'string', 'regex:/^(0[1-9]|1[0-2])\/[0-9]{2}$/'],
+            'card_cvv' => ['required', 'digits_between:3,4'],
         ]);
 
         /** @var User $user */
         $user = Auth::user();
         $user->tariff_id = $request->tariff;
-        $user->tariff_expires_at = now()->addMonth();
+        $user->tariff_expires_at = $this->calculateTariffExpiryDate($user);
         $user->save();
 
-        return redirect()->route('dashboard')->with('success', 'Абонемент успешно активирован!');
+        return redirect()->route('dashboard')->with(
+            'success',
+            'Абонемент успешно активирован до ' . $user->tariff_expires_at->format('d.m.Y') . '!'
+        );
     }
 
     public function profile()
@@ -208,6 +244,7 @@ class DashboardController extends Controller
             'comment' => 'nullable|string|max:500',
         ]);
 
+        /** @var User $user */
         $user = Auth::user();
         $trainer = Trainer::findOrFail($request->trainer_id);
 
@@ -249,5 +286,16 @@ class DashboardController extends Controller
             'message' => 'Акция "' . $promotion->title . '" применена! Предъявите это сообщение на стойке регистрации.',
             'code' => strtoupper(substr(md5($promotion->id . $user->id), 0, 8)),
         ]);
+    }
+
+    protected function calculateTariffExpiryDate(User $user)
+    {
+        $currentExpiryDate = $user->tariff_expires_at;
+
+        if ($currentExpiryDate && ($currentExpiryDate->isFuture() || $currentExpiryDate->isToday())) {
+            return $currentExpiryDate->copy()->addMonth();
+        }
+
+        return now()->addMonth();
     }
 }

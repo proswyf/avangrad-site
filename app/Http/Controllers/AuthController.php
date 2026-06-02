@@ -2,13 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
 
 class AuthController extends Controller
 {
+    protected function redirectAfterAuthentication(Request $request, string $message)
+    {
+        $defaultRoute = Auth::user()?->role === 'admin'
+            ? route('admin.dashboard')
+            : route('dashboard');
+
+        return redirect()->intended($defaultRoute)->with('success', $message);
+    }
+
     public function register(Request $request)
     {
         $request->validate([
@@ -16,7 +25,7 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'phone' => 'nullable|string|max:20',
             'password' => 'required|string|min:6|confirmed',
-            'agree'    => 'accepted',
+            'agree' => 'accepted',
         ]);
 
         $user = User::create([
@@ -28,8 +37,9 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
+        $request->session()->regenerate();
 
-        return redirect()->route('dashboard')->with('success', 'Добро пожаловать, ' . $user->name . '!');
+        return $this->redirectAfterAuthentication($request, 'Добро пожаловать, ' . $user->name . '!');
     }
 
     public function login(Request $request)
@@ -42,11 +52,7 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            if (Auth::user()->role === 'admin') {
-                return redirect()->route('admin.dashboard');
-            }
-
-            return redirect()->route('dashboard')->with('success', 'Вы успешно вошли в систему!');
+            return $this->redirectAfterAuthentication($request, 'Вы успешно вошли в систему!');
         }
 
         return back()->withErrors([

@@ -63,16 +63,27 @@
     </div>
 
     <div class="hero-buttons">
+      @auth
+        <a href="{{ route('dashboard') }}" class="btn-ghost">
+          Личный кабинет
+          <span class="btn-arrow">→</span>
+        </a>
 
-      <a href="{{ route('login') }}" class="btn-ghost">
-        Войти
-        <span class="btn-arrow">→</span>
-      </a>
+        <a href="{{ route('choose-tariff') }}" class="btn-solid">
+          Выбрать тариф
+          <span class="btn-arrow">→</span>
+        </a>
+      @else
+        <a href="{{ route('login') }}" class="btn-ghost">
+          Войти
+          <span class="btn-arrow">→</span>
+        </a>
 
-      <a href="{{ route('register') }}" class="btn-solid">
-        Регистрация
-        <span class="btn-arrow">→</span>
-      </a>
+        <a href="{{ route('register') }}" class="btn-solid">
+          Регистрация
+          <span class="btn-arrow">→</span>
+        </a>
+      @endauth
 
     </div>
 
@@ -315,7 +326,7 @@
                 </div>
               @endforeach
             </div>
-            <a href="{{ route('register') }}" class="tariff-btn">Выбрать тариф</a>
+            <a href="{{ route('choose-tariff') }}" class="tariff-btn">Выбрать тариф</a>
           </div>
         @empty
           <div class="empty-on-dark">
@@ -380,7 +391,7 @@
                                             stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
                                 </a>
-                <a href="{{ route('login') }}" class="trainer-cta">
+                <a href="{{ route('book-trainer.form', $trainer->id) }}" class="trainer-cta">
                   Войти для записи
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                     <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"

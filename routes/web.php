@@ -17,35 +17,43 @@ Route::controller(PageController::class)->group(function () {
     Route::get('/promotions', 'promotions')->name('promotions');
     Route::get('/group-classes', 'groupClasses')->name('group-classes');
     Route::get('/trainers', 'trainers')->name('trainers');
-Route::get('/trainer/{id}', 'trainerProfile')->name('trainer.profile');    Route::get('/faq', 'faq')->name('faq');
-    Route::get('/login', 'login')->name('login');
-    Route::get('/register', 'register')->name('register');
-    Route::delete('/trainer-booking/{id}/cancel', [DashboardController::class, 'cancelTrainerBooking'])->name('cancel-trainer-booking');
+    Route::get('/trainer/{id}', 'trainerProfile')->name('trainer.profile');
+    Route::get('/faq', 'faq')->name('faq');
     Route::get('/obrabotka-personalnyh-dannyh', function () {
         return view('pages.obrabotkapersdann');
     })->name('privacy.policy');
     Route::view('/privacy-policy', 'privacy-policy')->name('politikakonf');
 });
 
-Route::controller(AuthController::class)->group(function () {
-    Route::post('/login', 'login');
-    Route::post('/register', 'register');
-    Route::post('/logout', 'logout')->name('logout');
-    Route::post('/cancel-promotion', [DashboardController::class, 'cancelPromotion'])->name('cancel-promotion');
+Route::middleware('guest')->controller(PageController::class)->group(function () {
+    Route::get('/login', 'login')->name('login');
+    Route::get('/register', 'register')->name('register');
 });
 
-Route::middleware('auth')->controller(DashboardController::class)->group(function () {
-    Route::get('/dashboard', 'index')->name('dashboard');
-    Route::get('/choose-tariff', 'chooseTariff')->name('choose-tariff');
-    Route::post('/activate-tariff', 'activateTariff')->name('activate-tariff');
-    Route::get('/profile', 'profile')->name('profile');
-    Route::post('/profile', 'updateProfile');
-    Route::get('/bookings', 'bookings')->name('bookings');
-    Route::post('/book-class', 'bookClass')->name('book-class');
-    Route::delete('/cancel-booking/{id}', 'cancelBooking')->name('cancel-booking');
-    Route::get('/book-trainer/{id}', 'bookTrainerForm')->name('book-trainer.form');
-    Route::post('/book-trainer', 'bookTrainer')->name('book-trainer');
-    Route::post('/apply-promotion/{id}', 'applyPromotion')->name('apply-promotion');
+Route::middleware('guest')->controller(AuthController::class)->group(function () {
+    Route::post('/login', 'login');
+    Route::post('/register', 'register');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('/cancel-promotion', [DashboardController::class, 'cancelPromotion'])->name('cancel-promotion');
+    Route::delete('/trainer-booking/{id}/cancel', [DashboardController::class, 'cancelTrainerBooking'])->name('cancel-trainer-booking');
+
+    Route::controller(DashboardController::class)->group(function () {
+        Route::get('/dashboard', 'index')->name('dashboard');
+        Route::get('/choose-tariff', 'chooseTariff')->name('choose-tariff');
+        Route::get('/tariff-payment', 'tariffPayment')->name('tariff-payment');
+        Route::post('/activate-tariff', 'activateTariff')->name('activate-tariff');
+        Route::get('/profile', 'profile')->name('profile');
+        Route::post('/profile', 'updateProfile');
+        Route::get('/bookings', 'bookings')->name('bookings');
+        Route::post('/book-class', 'bookClass')->name('book-class');
+        Route::delete('/cancel-booking/{id}', 'cancelBooking')->name('cancel-booking');
+        Route::get('/book-trainer/{id}', 'bookTrainerForm')->name('book-trainer.form');
+        Route::post('/book-trainer', 'bookTrainer')->name('book-trainer');
+        Route::post('/apply-promotion/{id}', 'applyPromotion')->name('apply-promotion');
+    });
 });
 
 Route::middleware(['auth', 'admin'])

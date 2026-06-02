@@ -45,7 +45,7 @@
                     Записаться на тренировку <span class="btn-arrow">→</span>
                 </a>
             @else
-                <a href="{{ route('login') }}" class="btn-ghost">
+                <a href="{{ route('book-trainer.form', $trainer->id) }}" class="btn-ghost">
                     Войти для записи <span class="btn-arrow">→</span>
                 </a>
             @endauth
@@ -218,7 +218,7 @@
                         Записаться к тренеру
                     </a>
                 @else
-                    <a href="{{ route('login') }}" class="tariff-btn">
+                    <a href="{{ route('book-trainer.form', $trainer->id) }}" class="tariff-btn">
                         Войти и записаться
                     </a>
                 @endauth

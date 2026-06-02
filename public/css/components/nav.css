@@ -93,7 +93,7 @@
   gap: 2px;
   list-style: none;
   flex: 1;
-  margin-bottom: 0;
+  margin-bottom: 0 !important;
 }
 .nav-links .nav-link {
   display: block;

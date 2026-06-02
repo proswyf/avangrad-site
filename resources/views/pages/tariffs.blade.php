@@ -56,7 +56,7 @@
                     @endforeach
                 </div>
 
-                <a href="{{ route('register') }}" class="tariff-btn">Выбрать тариф</a>
+                <a href="{{ route('choose-tariff') }}" class="tariff-btn">Выбрать тариф</a>
             </div>
             @empty
             <div class="tp-empty">Тарифы временно недоступны</div>

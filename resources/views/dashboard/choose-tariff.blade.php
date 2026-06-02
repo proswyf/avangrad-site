@@ -44,87 +44,40 @@
     @endif
 
     <div class="tp-tariffs-grid">
+      @forelse($tariffs as $tariff)
+        @php
+          $isCurrent = $user->tariff_id === $tariff->name;
+          $features = is_array($tariff->features) ? $tariff->features : json_decode($tariff->features, true);
+        @endphp
+        <div class="tp-tariff-card {{ $isCurrent ? 'current' : '' }} {{ !$isCurrent && $tariff->is_popular ? 'popular' : '' }}">
+          @if($isCurrent)
+            <div class="tp-current-line"></div>
+            <div class="tp-current-badge">Текущий</div>
+          @endif
 
-      {{-- Стартовый --}}
-      @php $isCurrent = $user->tariff_id === 'Стартовый'; @endphp
-      <div class="tp-tariff-card {{ $isCurrent ? 'current' : '' }}">
-        @if($isCurrent)
-          <div class="tp-current-line"></div>
-          <div class="tp-current-badge">Текущий</div>
-        @endif
-        <div class="tp-tariff-name">Стартовый</div>
-        <div class="tp-tariff-price">1 500 <sub>₽</sub></div>
-        <div class="tp-tariff-period">в месяц</div>
-        <div class="tp-features">
-          <div class="tp-feature"><span class="tp-feature-icon">✓</span>Тренажерный зал</div>
-          <div class="tp-feature"><span class="tp-feature-icon">✓</span>Кардиозона</div>
-          <div class="tp-feature"><span class="tp-feature-icon">✓</span>Раздевалка с душем</div>
-          <div class="tp-feature tp-feature--off"><span class="tp-feature-icon">—</span>Групповые занятия</div>
-          <div class="tp-feature tp-feature--off"><span class="tp-feature-icon">—</span>Бассейн</div>
+          <div class="tp-tariff-name">{{ $tariff->name }}</div>
+          <div class="tp-tariff-price">{{ number_format($tariff->price, 0, '', ' ') }} <sub>₽</sub></div>
+          <div class="tp-tariff-period">в {{ $tariff->period }}</div>
+
+          <div class="tp-features">
+            @foreach($features ?? [] as $feature)
+              <div class="tp-feature">
+                <span class="tp-feature-icon">✓</span>
+                {{ $feature }}
+              </div>
+            @endforeach
+          </div>
+
+          <a href="{{ route('tariff-payment', ['tariff' => $tariff->name]) }}" class="tp-btn">
+            {{ $isCurrent ? 'Продлить на месяц' : 'Перейти к оплате' }}
+          </a>
         </div>
-        <form method="POST" action="{{ route('activate-tariff') }}">
-          @csrf
-          <input type="hidden" name="tariff" value="Стартовый">
-          <button type="submit" class="tp-btn">
-            {{ $isCurrent ? 'Продлить на месяц' : 'Активировать' }}
-          </button>
-        </form>
-      </div>
-
-      {{-- Оптимальный --}}
-      @php $isCurrent = $user->tariff_id === 'Оптимальный'; @endphp
-      <div class="tp-tariff-card {{ $isCurrent ? 'current' : 'popular' }}">
-        @if($isCurrent)
-          <div class="tp-current-line"></div>
-          <div class="tp-current-badge">Текущий</div>
-        @endif
-        <div class="tp-tariff-name">Оптимальный</div>
-        <div class="tp-tariff-price">3 000 <sub>₽</sub></div>
-        <div class="tp-tariff-period">в месяц</div>
-        <div class="tp-features">
-          <div class="tp-feature"><span class="tp-feature-icon">✓</span>Тренажерный зал</div>
-          <div class="tp-feature"><span class="tp-feature-icon">✓</span>Кардиозона</div>
-          <div class="tp-feature"><span class="tp-feature-icon">✓</span>Раздевалка с душем</div>
-          <div class="tp-feature"><span class="tp-feature-icon">✓</span>Групповые занятия</div>
-          <div class="tp-feature tp-feature--off"><span class="tp-feature-icon">—</span>Бассейн</div>
+      @empty
+        <div class="current-tariff-notice">
+          <div class="current-tariff-dot"></div>
+          <div class="current-tariff-text">Сейчас нет активных тарифов для покупки.</div>
         </div>
-        <form method="POST" action="{{ route('activate-tariff') }}">
-          @csrf
-          <input type="hidden" name="tariff" value="Оптимальный">
-          <button type="submit" class="tp-btn">
-            {{ $isCurrent ? 'Продлить на месяц' : 'Активировать' }}
-          </button>
-        </form>
-      </div>
-
-      {{-- VIP --}}
-      @php $isCurrent = $user->tariff_id === 'VIP'; @endphp
-      <div class="tp-tariff-card {{ $isCurrent ? 'current' : '' }}">
-        @if($isCurrent)
-          <div class="tp-current-line"></div>
-          <div class="tp-current-badge">Текущий</div>
-        @endif
-        <div class="tp-tariff-name">VIP</div>
-        <div class="tp-tariff-price">5 000 <sub>₽</sub></div>
-        <div class="tp-tariff-period">в месяц</div>
-        <div class="tp-features">
-          <div class="tp-feature"><span class="tp-feature-icon">✓</span>Тренажерный зал</div>
-          <div class="tp-feature"><span class="tp-feature-icon">✓</span>Кардиозона</div>
-          <div class="tp-feature"><span class="tp-feature-icon">✓</span>Раздевалка с душем</div>
-          <div class="tp-feature"><span class="tp-feature-icon">✓</span>Групповые занятия</div>
-          <div class="tp-feature"><span class="tp-feature-icon">✓</span>Бассейн</div>
-          <div class="tp-feature"><span class="tp-feature-icon">✓</span>Персональный тренер</div>
-          <div class="tp-feature"><span class="tp-feature-icon">✓</span>Фитнес-бар со скидкой</div>
-        </div>
-        <form method="POST" action="{{ route('activate-tariff') }}">
-          @csrf
-          <input type="hidden" name="tariff" value="VIP">
-          <button type="submit" class="tp-btn">
-            {{ $isCurrent ? 'Продлить на месяц' : 'Активировать' }}
-          </button>
-        </form>
-      </div>
-
+      @endforelse
     </div>
   </div>
 </div>
