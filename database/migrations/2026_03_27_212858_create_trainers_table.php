@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug')->unique();
             $table->string('position');
+            $table->string('bio');
             $table->integer('experience')->comment('лет опыта');
             $table->text('specialization');
             $table->text('certificates')->nullable();
