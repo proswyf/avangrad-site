@@ -1,6 +1,6 @@
 ﻿@extends('layouts.app')
 
-@section('title', 'Главная')
+@section('title', 'Фитнес-клуб в Челябинске — тренажёрный зал, бассейн, спа и лучшие тренеры')
 
 @push('styles')
   <link rel="stylesheet" href="{{ asset('css/pages/home.css') }}">
