@@ -5,17 +5,28 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\TrainerReview;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class TrainerReviewController extends Controller
 {
     public function index(Request $request)
     {
-        $status = $request->query('status');
+        if (!$this->trainerReviewsReady()) {
+            return redirect()
+                ->route('admin.dashboard')
+                ->with('error', 'Сначала выполните миграцию таблицы отзывов о тренерах.');
+        }
 
-        $reviewsQuery = TrainerReview::with(['trainer', 'user'])
-            ->latest();
+        $status = $request->query('status', 'pending');
+        $allowedStatuses = ['pending', 'approved', 'rejected', 'all'];
 
-        if (in_array($status, ['pending', 'approved', 'rejected'], true)) {
+        if (!in_array($status, $allowedStatuses, true)) {
+            $status = 'pending';
+        }
+
+        $reviewsQuery = TrainerReview::with(['trainer', 'user'])->latest();
+
+        if ($status !== 'all') {
             $reviewsQuery->where('status', $status);
         }
 
@@ -24,42 +35,53 @@ class TrainerReviewController extends Controller
         $stats = [
             'all' => TrainerReview::count(),
             'pending' => TrainerReview::pending()->count(),
-            'approved' => TrainerReview::where('status', 'approved')->count(),
+            'approved' => TrainerReview::approved()->count(),
             'rejected' => TrainerReview::where('status', 'rejected')->count(),
         ];
 
         return view('admin.trainer-reviews.index', compact('reviews', 'stats', 'status'));
     }
 
-    public function approve($id)
+    public function update(Request $request, $id)
     {
+        if (!$this->trainerReviewsReady()) {
+            return redirect()
+                ->route('admin.dashboard')
+                ->with('error', 'Сначала выполните миграцию таблицы отзывов о тренерах.');
+        }
+
         $review = TrainerReview::findOrFail($id);
-        $review->update([
-            'status' => 'approved',
-            'moderated_at' => now(),
-            'moderation_note' => null,
+
+        $request->validate([
+            'status' => 'required|in:pending,approved,rejected',
+            'moderation_note' => 'nullable|string|max:1000',
         ]);
 
-        return redirect()->route('admin.trainer-reviews.index')->with('success', 'Отзыв одобрен.');
-    }
+        $status = $request->input('status');
 
-    public function reject(Request $request, $id)
-    {
-        $review = TrainerReview::findOrFail($id);
         $review->update([
-            'status' => 'rejected',
-            'moderated_at' => now(),
-            'moderation_note' => $request->input('moderation_note'),
+            'status' => $status,
+            'moderated_at' => $status === 'pending' ? null : now(),
+            'moderation_note' => blank($request->input('moderation_note'))
+                ? null
+                : trim((string) $request->input('moderation_note')),
         ]);
 
-        return redirect()->route('admin.trainer-reviews.index')->with('success', 'Отзыв отклонен.');
+        $statusLabels = [
+            'pending' => 'ожидает модерации',
+            'approved' => 'одобрен',
+            'rejected' => 'отклонен',
+        ];
+
+        return redirect()
+            ->route('admin.trainer-reviews.index', ['status' => $request->query('status', 'pending')])
+            ->with('success', 'Статус отзыва обновлен: ' . $statusLabels[$status] . '.');
     }
 
-    public function destroy($id)
+    private function trainerReviewsReady(): bool
     {
-        $review = TrainerReview::findOrFail($id);
-        $review->delete();
-
-        return redirect()->route('admin.trainer-reviews.index')->with('success', 'Отзыв удален.');
+        return Schema::hasTable('trainer_reviews')
+            && Schema::hasColumn('trainer_reviews', 'status')
+            && Schema::hasColumn('trainer_reviews', 'rating');
     }
 }
