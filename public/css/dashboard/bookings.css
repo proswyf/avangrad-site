@@ -203,7 +203,63 @@
   background: var(--ink-ghost);
 }
 
-.class-card form { margin-top: auto; }
+.class-booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.class-slot-label {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.class-slot-select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--border-mid);
+  border-radius: var(--r-xs);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: .84rem;
+}
+
+.class-slot-select:focus {
+  outline: none;
+  border-color: var(--border-hard);
+  box-shadow: 0 0 0 3px rgba(13, 13, 13, 0.06);
+}
+
+.class-booked-slots {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--r-sm);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+}
+
+.class-booked-slots-title {
+  font-size: .66rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.class-booked-slot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: .8rem;
+  color: var(--ink-dim);
+}
 
 /* Buttons */
 .book-button {
@@ -226,6 +282,11 @@
 .book-button:hover {
   background: rgba(13,13,13,0.82);
   transform: translateY(-1px);
+}
+.book-button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .booking-card-actions {

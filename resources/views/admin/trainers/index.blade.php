@@ -28,6 +28,7 @@
                     <th>Имя</th>
                     <th>Должность</th>
                     <th>Опыт</th>
+                    <th>Стоимость</th>
                     <th>Статус</th>
                     <th>Действия</th>
                 </thead>
@@ -45,6 +46,7 @@
                     <td><strong>{{ $trainer->name }}</strong></td>
                     <td>{{ $trainer->position }}</td>
                     <td>{{ $trainer->experience }} лет</td>
+                    <td>{{ !is_null($trainer->price) ? number_format((float) $trainer->price, 0, '', ' ') . ' ₽' : '—' }}</td>
                     <td>
                         <span class="{{ $trainer->is_active ? 'badge-active' : 'badge-inactive' }}">
                             {{ $trainer->is_active ? 'Активен' : 'Неактивен' }}
@@ -61,7 +63,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="text-center-inline">Тренеры не найдены</td>
+                    <td colspan="8" class="text-center-inline">Тренеры не найдены</td>
                 </tr>
                 @endforelse
             </tbody>

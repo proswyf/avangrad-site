@@ -42,7 +42,10 @@
                     <td>{{ $booking->created_at->format('d.m.Y H:i') }}</td>
                     <td><strong>{{ $booking->user->name }}</strong><br><small>{{ $booking->user->email }}</small></td>
                     <td>{{ $booking->trainer_name }}</td>
-                    <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d.m.Y') }}</td>
+                    <td>
+                        <strong>{{ $booking->booking_date_label ?? '—' }}</strong><br>
+                        <small>{{ $booking->booking_weekday_label ?? '—' }}{{ $booking->booking_time_label ? ', ' . $booking->booking_time_label : '' }}</small>
+                    </td>
                     <td>{{ $booking->phone }}</td>
                     <td>
                         <span class="status-badge status-{{ $booking->status }}">

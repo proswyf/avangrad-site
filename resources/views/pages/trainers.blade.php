@@ -45,7 +45,7 @@
                                     @endif
                                 </div>
 
-                                @if($trainer->price)
+                                @if(!is_null($trainer->price))
                                     <div class="trainer-price-badge">{{ number_format((float) $trainer->price, 0, '', ' ') }} ₽</div>
                                 @endif
                             </div>

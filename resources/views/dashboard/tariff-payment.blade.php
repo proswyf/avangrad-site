@@ -54,29 +54,29 @@
           <div>Оплата банковской картой</div>
         </div>
 
-        <form method="POST" action="{{ route('activate-tariff') }}">
+        <form method="POST" action="{{ route('activate-tariff') }}" class="payment-form" novalidate>
           @csrf
           <input type="hidden" name="tariff" value="{{ $tariff->name }}">
 
           <div class="payment-form-grid">
             <label class="payment-field">
               <span>Имя владельца карты</span>
-              <input type="text" name="card_holder" value="{{ old('card_holder', $user->name) }}" placeholder="IVAN IVANOV" required>
+              <input type="text" name="card_holder" value="{{ old('card_holder', $user->name) }}" placeholder="IVAN IVANOV" autocomplete="cc-name" required>
             </label>
 
             <label class="payment-field payment-field--full">
               <span>Номер карты</span>
-              <input type="text" name="card_number" value="{{ old('card_number') }}" inputmode="numeric" placeholder="1111 2222 3333 4444" required>
+              <input type="text" name="card_number" value="{{ old('card_number') }}" inputmode="numeric" autocomplete="cc-number" placeholder="1111 2222 3333 4444" maxlength="23" data-card-number required>
             </label>
 
             <label class="payment-field">
               <span>Срок действия</span>
-              <input type="text" name="card_expiry" value="{{ old('card_expiry') }}" inputmode="numeric" placeholder="MM/YY" required>
+              <input type="text" name="card_expiry" value="{{ old('card_expiry') }}" inputmode="numeric" autocomplete="cc-exp" placeholder="MM/YY" maxlength="5" data-card-expiry required>
             </label>
 
             <label class="payment-field">
               <span>CVV</span>
-              <input type="password" name="card_cvv" inputmode="numeric" placeholder="123" maxlength="4" required>
+              <input type="password" name="card_cvv" inputmode="numeric" autocomplete="cc-csc" placeholder="123" maxlength="4" data-card-cvv required>
             </label>
           </div>
 
@@ -112,3 +112,50 @@
   </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const cardNumberInput = document.querySelector('[data-card-number]');
+    const cardExpiryInput = document.querySelector('[data-card-expiry]');
+    const cardCvvInput = document.querySelector('[data-card-cvv]');
+
+    const formatCardNumber = (value) => {
+      const digits = value.replace(/\D/g, '').slice(0, 19);
+      return digits.replace(/(.{4})/g, '$1 ').trim();
+    };
+
+    const formatCardExpiry = (value) => {
+      const digits = value.replace(/\D/g, '').slice(0, 4);
+
+      if (digits.length <= 2) {
+        return digits;
+      }
+
+      return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    };
+
+    const formatCardCvv = (value) => value.replace(/\D/g, '').slice(0, 4);
+
+    if (cardNumberInput) {
+      cardNumberInput.value = formatCardNumber(cardNumberInput.value);
+      cardNumberInput.addEventListener('input', () => {
+        cardNumberInput.value = formatCardNumber(cardNumberInput.value);
+      });
+    }
+
+    if (cardExpiryInput) {
+      cardExpiryInput.value = formatCardExpiry(cardExpiryInput.value);
+      cardExpiryInput.addEventListener('input', () => {
+        cardExpiryInput.value = formatCardExpiry(cardExpiryInput.value);
+      });
+    }
+
+    if (cardCvvInput) {
+      cardCvvInput.addEventListener('input', () => {
+        cardCvvInput.value = formatCardCvv(cardCvvInput.value);
+      });
+    }
+  });
+</script>
+@endpush

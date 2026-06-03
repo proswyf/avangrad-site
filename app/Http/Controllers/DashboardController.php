@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Booking;
 use App\Models\GroupClass;
 use App\Models\Promotion;
@@ -11,6 +12,7 @@ use App\Models\TrainerBooking;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
@@ -21,9 +23,26 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         $upcomingTrainerBookings = TrainerBooking::where('user_id', $user->id)
-            ->where('status', 'pending')
-            ->where('booking_date', '>=', now()->toDateString())
-            ->orderBy('booking_date')
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->when($this->trainerBookingsHaveTime(), function ($query) {
+                $today = now()->toDateString();
+                $currentTime = now()->format('H:i:s');
+
+                $query->where(function ($builder) use ($today, $currentTime) {
+                    $builder->whereDate('booking_date', '>', $today)
+                        ->orWhere(function ($sameDayQuery) use ($today, $currentTime) {
+                            $sameDayQuery->whereDate('booking_date', $today)
+                                ->where(function ($timeQuery) use ($currentTime) {
+                                    $timeQuery->whereNull('booking_time')
+                                        ->orWhere('booking_time', '>=', $currentTime);
+                                });
+                        });
+                })->orderBy('booking_date')
+                    ->orderBy('booking_time');
+            }, function ($query) {
+                $query->where('booking_date', '>=', now()->toDateString())
+                    ->orderBy('booking_date');
+            })
             ->with('trainer')
             ->get();
 
@@ -37,8 +56,15 @@ class DashboardController extends Controller
 
         $booking = TrainerBooking::where('id', $id)
             ->where('user_id', $user->id)
-            ->where('status', 'pending')
-            ->firstOrFail();
+            ->first();
+
+        if (!$booking) {
+            return redirect()->back()->with('error', 'Запись не найдена.');
+        }
+
+        if (!in_array($booking->status, ['pending', 'confirmed'], true)) {
+            return redirect()->back()->with('error', 'Эту запись уже нельзя отменить.');
+        }
 
         $booking->update(['status' => 'cancelled']);
 
@@ -88,6 +114,8 @@ class DashboardController extends Controller
 
     public function activateTariff(Request $request)
     {
+        $request->merge($this->normalizePaymentInput($request));
+
         $request->validate([
             'tariff' => [
                 'required',
@@ -97,9 +125,22 @@ class DashboardController extends Controller
                 }),
             ],
             'card_holder' => 'required|string|max:255',
-            'card_number' => ['required', 'string', 'regex:/^[0-9 ]{16,23}$/'],
+            'card_number' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    $digits = preg_replace('/\D+/', '', (string) $value);
+
+                    if (strlen($digits) < 13 || strlen($digits) > 19) {
+                        $fail('Введите корректный номер карты.');
+                    }
+                },
+            ],
             'card_expiry' => ['required', 'string', 'regex:/^(0[1-9]|1[0-2])\/[0-9]{2}$/'],
-            'card_cvv' => ['required', 'digits_between:3,4'],
+            'card_cvv' => ['required', 'string', 'regex:/^[0-9]{2,4}$/'],
+        ], [
+            'card_expiry.regex' => 'Укажите срок действия в формате MM/YY.',
+            'card_cvv.regex' => 'CVV должен содержать от 2 до 4 цифр.',
         ]);
 
         /** @var User $user */
@@ -156,6 +197,13 @@ class DashboardController extends Controller
 
     public function bookClass(Request $request)
     {
+        if (!$this->bookingsHaveTime()) {
+            return redirect()->back()->with(
+                'error',
+                'Для записи на конкретный слот нужно применить свежие миграции базы данных.'
+            );
+        }
+
         $request->validate([
             'class' => [
                 'required',
@@ -164,18 +212,39 @@ class DashboardController extends Controller
                     $query->where('is_active', true);
                 }),
             ],
+            'booking_date' => 'required|date|after_or_equal:today',
         ]);
 
         /** @var User $user */
         $user = Auth::user();
-        $bookingDate = now()->toDateString();
         $class = GroupClass::where('name', $request->class)
             ->where('is_active', true)
             ->firstOrFail();
+        $bookingDate = Carbon::parse($request->booking_date)->startOfDay();
+        $bookingTime = $class->schedule_start_time;
+
+        if (!$bookingTime) {
+            return redirect()->back()->with('error', 'У этого занятия пока не указано время в расписании.');
+        }
+
+        if (!$class->runsOnDate($bookingDate)) {
+            return redirect()->back()->with('error', 'Это занятие не проводится в выбранный день.');
+        }
+
+        $bookingAt = Carbon::createFromFormat(
+            'Y-m-d H:i',
+            $bookingDate->format('Y-m-d') . ' ' . $bookingTime,
+            config('app.timezone')
+        );
+
+        if ($bookingAt->lt(now())) {
+            return redirect()->back()->with('error', 'Выберите ближайшее занятие в будущем.');
+        }
 
         $existingBooking = Booking::where('user_id', $user->id)
             ->where('class_name', $class->name)
-            ->whereDate('booking_date', $bookingDate)
+            ->whereDate('booking_date', $bookingDate->format('Y-m-d'))
+            ->where('booking_time', $bookingTime)
             ->first();
 
         if ($existingBooking?->status === 'active') {
@@ -187,7 +256,8 @@ class DashboardController extends Controller
         }
 
         $activeBookingsCount = Booking::where('class_name', $class->name)
-            ->whereDate('booking_date', $bookingDate)
+            ->whereDate('booking_date', $bookingDate->format('Y-m-d'))
+            ->where('booking_time', $bookingTime)
             ->where('status', 'active')
             ->count();
 
@@ -196,12 +266,17 @@ class DashboardController extends Controller
         }
 
         if ($existingBooking) {
-            $existingBooking->update(['status' => 'active']);
+            $existingBooking->update([
+                'booking_date' => $bookingDate->format('Y-m-d'),
+                'booking_time' => $bookingTime,
+                'status' => 'active',
+            ]);
         } else {
             Booking::create([
                 'user_id' => $user->id,
                 'class_name' => $class->name,
-                'booking_date' => $bookingDate,
+                'booking_date' => $bookingDate->format('Y-m-d'),
+                'booking_time' => $bookingTime,
                 'status' => 'active',
             ]);
         }
@@ -237,9 +312,17 @@ class DashboardController extends Controller
 
     public function bookTrainer(Request $request)
     {
+        if (!$this->trainerBookingsHaveTime()) {
+            return redirect()->back()->with(
+                'error',
+                'Для записи по времени нужно применить свежие миграции базы данных.'
+            );
+        }
+
         $request->validate([
             'trainer_id' => 'required|exists:trainers,id',
             'booking_date' => 'required|date|after_or_equal:today',
+            'booking_time' => 'required|date_format:H:i',
             'phone' => 'required|string|max:20',
             'comment' => 'nullable|string|max:500',
         ]);
@@ -247,12 +330,24 @@ class DashboardController extends Controller
         /** @var User $user */
         $user = Auth::user();
         $trainer = Trainer::findOrFail($request->trainer_id);
+        $bookingAt = Carbon::createFromFormat(
+            'Y-m-d H:i',
+            $request->booking_date . ' ' . $request->booking_time,
+            config('app.timezone')
+        );
+
+        if ($bookingAt->lt(now())) {
+            return redirect()->back()
+                ->withErrors(['booking_time' => 'Выберите дату и время тренировки в будущем.'])
+                ->withInput();
+        }
 
         TrainerBooking::create([
             'user_id' => $user->id,
             'trainer_id' => $trainer->id,
             'trainer_name' => $trainer->name,
             'booking_date' => $request->booking_date,
+            'booking_time' => $request->booking_time,
             'phone' => $request->phone,
             'comment' => $request->comment,
             'status' => 'pending',
@@ -286,6 +381,46 @@ class DashboardController extends Controller
             'message' => 'Акция "' . $promotion->title . '" применена! Предъявите это сообщение на стойке регистрации.',
             'code' => strtoupper(substr(md5($promotion->id . $user->id), 0, 8)),
         ]);
+    }
+
+    private function normalizePaymentInput(Request $request): array
+    {
+        return [
+            'card_holder' => preg_replace('/\s+/', ' ', trim((string) $request->input('card_holder', ''))),
+            'card_number' => $this->formatCardNumber((string) $request->input('card_number', '')),
+            'card_expiry' => $this->formatCardExpiry((string) $request->input('card_expiry', '')),
+            'card_cvv' => substr(preg_replace('/\D+/', '', (string) $request->input('card_cvv', '')), 0, 4),
+        ];
+    }
+
+    private function formatCardNumber(string $value): string
+    {
+        $digits = substr(preg_replace('/\D+/', '', $value), 0, 19);
+
+        return trim(implode(' ', str_split($digits, 4)));
+    }
+
+    private function formatCardExpiry(string $value): string
+    {
+        $digits = substr(preg_replace('/\D+/', '', $value), 0, 4);
+
+        if (strlen($digits) <= 2) {
+            return $digits;
+        }
+
+        return substr($digits, 0, 2) . '/' . substr($digits, 2, 2);
+    }
+
+    private function trainerBookingsHaveTime(): bool
+    {
+        return Schema::hasTable('trainer_bookings')
+            && Schema::hasColumn('trainer_bookings', 'booking_time');
+    }
+
+    private function bookingsHaveTime(): bool
+    {
+        return Schema::hasTable('bookings')
+            && Schema::hasColumn('bookings', 'booking_time');
     }
 
     protected function calculateTariffExpiryDate(User $user)

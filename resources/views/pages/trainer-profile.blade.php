@@ -35,7 +35,7 @@
             <div class="hero-meta-item">
                 <div class="hero-meta-label">Стоимость</div>
                 <div class="hero-meta-value">
-                    {{ $trainer->price ? $trainer->price . '₽ / занятие' : 'Цена уточняется' }}
+                    {{ !is_null($trainer->price) ? number_format((float) $trainer->price, 0, '', ' ') . ' ₽ / занятие' : 'Цена уточняется' }}
                 </div>
             </div>
             @if($trainer->quote)

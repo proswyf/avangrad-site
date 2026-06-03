@@ -33,7 +33,8 @@
 
             {{-- Logo --}}
             <a class="nav-logo" href="{{ route('home') }}">
-                <img src="{{ asset('images/logo.png') }}" alt="Авангард" class="nav-logo-img">
+                <img src="{{ asset('images/logo.png') }}" alt="Авангард" class="nav-logo-img nav-logo-img--light">
+                <img src="{{ asset('images/logo2.png') }}" alt="Авангард" class="nav-logo-img nav-logo-img--dark">
                 {{-- <span class="nav-logo-text">Авангард</span> --}}
             </a>
 
@@ -145,7 +146,7 @@
                 {{-- Brand --}}
                 <div class="footer-brand-col">
                     <a href="{{ route('home') }}" class="footer-logo">
-                        <img src="{{ asset('images/logo.png') }}" alt="Авангард" class="footer-logo-img">
+                        <img src="{{ asset('images/logo2.png') }}" alt="Авангард" class="footer-logo-img">
                         <span class="footer-logo-text">Авангард</span>
                     </a>
                     <p class="footer-desc">Фитнес-клуб в Челябинске — 2 200 м² для тренировок, СПА и бассейна.</p>

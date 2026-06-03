@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('trainer_id')->constrained()->onDelete('cascade');
             $table->string('trainer_name');
             $table->date('booking_date');
+            $table->time('booking_time')->nullable();
             $table->string('phone');
             $table->text('comment')->nullable();
             $table->string('status')->default('pending');

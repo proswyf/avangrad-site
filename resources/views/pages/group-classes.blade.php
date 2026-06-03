@@ -7,7 +7,9 @@
 @endpush
 
 @section('content')
-@php($classesByName = $classes->keyBy('name'))
+@php
+    $classesByName = $classes->keyBy('name');
+@endphp
 
 {{-- ══════════════════════════════════════════
      PAGE HERO
@@ -30,11 +32,12 @@
     <div class="gc-inner">
         <div class="gc-grid">
             @forelse($classes as $class)
-                @php(
-                    $myActiveBooking = $myBookings->first(
-                        fn ($booking) => $booking->class_name === $class->name && $booking->can_be_cancelled
-                    )
-                )
+                @php
+                    $upcomingSessions = $class->upcoming_sessions;
+                    $classUpcomingBookings = $myBookings
+                        ->filter(fn ($booking) => $booking->class_name === $class->name && $booking->can_be_cancelled)
+                        ->sortBy(fn ($booking) => ($booking->booking_date?->format('Y-m-d') ?? '') . ' ' . ($booking->booking_time_label ?? '99:99'));
+                @endphp
                 <div class="class-card reveal-card">
 
                     {{-- Image --}}
@@ -83,36 +86,48 @@
 
                         <div class="class-action">
                             @auth
-                                @if($myActiveBooking)
-                                    <div class="class-booked-row">
-                                        <span class="status-pill status-pill--active">
-                                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                                                <path d="M2 6.5l3 3 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
-                                            Вы записаны
-                                        </span>
-                                        <form method="POST" action="{{ route('cancel-booking', $myActiveBooking->id) }}" class="inline-form">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="class-cancel-btn" onclick="return confirm('Отменить запись?')">
-                                                Отменить
-                                            </button>
-                                        </form>
+                                @if($classUpcomingBookings->isNotEmpty())
+                                    <div class="class-booked-list">
+                                        <div class="class-booked-list-title">Ваши ближайшие записи</div>
+                                        @foreach($classUpcomingBookings as $classBooking)
+                                            <div class="class-booked-row">
+                                                <span class="status-pill status-pill--active">
+                                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                                                        <path d="M2 6.5l3 3 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                    {{ $classBooking->booking_schedule_label ?? 'Запись активна' }}
+                                                </span>
+                                                <form method="POST" action="{{ route('cancel-booking', $classBooking->id) }}" class="inline-form">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="class-cancel-btn" onclick="return confirm('Отменить запись?')">
+                                                        Отменить
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        @endforeach
                                     </div>
-                                @else
-                                    <form method="POST" action="{{ route('book-class') }}" class="form-full-width">
-                                        @csrf
-                                        <input type="hidden" name="class" value="{{ $class->name }}">
-                                        <button type="submit" class="class-btn">
-                                            Записаться
-                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                                                <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
-                                        </button>
-                                    </form>
                                 @endif
+
+                                <form method="POST" action="{{ route('book-class') }}" class="class-booking-form form-full-width">
+                                    @csrf
+                                    <input type="hidden" name="class" value="{{ $class->name }}">
+                                    <label class="class-slot-label" for="gc-slot-{{ $class->id }}">Выберите ближайшее занятие</label>
+                                    <select name="booking_date" id="gc-slot-{{ $class->id }}" class="class-slot-select" required>
+                                        <option value="">Выберите дату и время</option>
+                                        @foreach($upcomingSessions as $session)
+                                            <option value="{{ $session['date'] }}">{{ $session['label'] }}</option>
+                                        @endforeach
+                                    </select>
+                                    <button type="submit" class="class-btn" {{ empty($upcomingSessions) ? 'disabled' : '' }}>
+                                        {{ empty($upcomingSessions) ? 'Слоты появятся позже' : 'Записаться' }}
+                                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                                            <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </button>
+                                </form>
                             @else
-                                <a href="{{ route('bookings') }}" class="class-btn class-btn--ghost">
+                                <a href="{{ route('login') }}" class="class-btn class-btn--ghost">
                                     Войти для записи
                                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                                         <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -149,24 +164,26 @@
                 <thead>
                     <tr>
                         <th>Занятие</th>
+                        <th>Когда</th>
                         <th>Расписание</th>
-                        <th>Дата</th>
                         <th>Статус</th>
                         <th>Действие</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($myBookings as $booking)
-                        @php($bookedClass = $classesByName->get($booking->class_name))
+                        @php
+                            $bookedClass = $classesByName->get($booking->class_name);
+                        @endphp
                         <tr>
                             <td data-label="Занятие">
                                 <span class="booking-name">{{ $booking->class_name }}</span>
                             </td>
+                            <td data-label="Когда">
+                                {{ $booking->booking_schedule_label ?? ($booking->booking_date?->format('d.m.Y') ?? '—') }}
+                            </td>
                             <td data-label="Расписание">
                                 <span class="booking-schedule-chip">{{ $bookedClass?->schedule ?? 'Не указано' }}</span>
-                            </td>
-                            <td data-label="Дата">
-                                {{ $booking->booking_date?->format('d.m.Y') ?? '—' }}
                             </td>
                             <td data-label="Статус">
                                 <span class="status-pill status-pill--{{ $booking->resolved_status }}">

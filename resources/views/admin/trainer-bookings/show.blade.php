@@ -36,7 +36,17 @@
     
     <div class="info-row">
         <div class="info-label">Дата тренировки</div>
-        <div class="info-value">{{ \Carbon\Carbon::parse($booking->booking_date)->format('d.m.Y') }}</div>
+        <div class="info-value">{{ $booking->booking_date_label ?? '—' }}</div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">День недели</div>
+        <div class="info-value">{{ $booking->booking_weekday_label ?? '—' }}</div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">Время тренировки</div>
+        <div class="info-value">{{ $booking->booking_time_label ?? 'Уточняется' }}</div>
     </div>
     
     @if($booking->comment)

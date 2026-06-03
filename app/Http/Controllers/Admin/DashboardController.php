@@ -286,11 +286,14 @@ public function storeBooking(Request $request)
         'booking_date' => 'required|date',
         'status' => 'required|in:active,cancelled,completed',
     ]);
+
+    $class = GroupClass::where('name', $request->class_name)->first();
     
     Booking::create([
         'user_id' => $request->user_id,
         'class_name' => $request->class_name,
         'booking_date' => $request->booking_date,
+        'booking_time' => $class?->schedule_start_time,
         'status' => $request->status,
     ]);
     
@@ -321,11 +324,14 @@ public function updateBooking(Request $request, $id)
         'booking_date' => 'required|date', 
         'status' => 'required|in:active,cancelled,completed',
     ]);
+
+    $class = GroupClass::where('name', $request->class_name)->first();
     
     $booking->update([
         'user_id' => $request->user_id,
         'class_name' => $request->class_name,
         'booking_date' => $request->booking_date,
+        'booking_time' => $class?->schedule_start_time,
         'status' => $request->status,
     ]);
     

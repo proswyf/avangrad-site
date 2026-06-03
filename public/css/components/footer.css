@@ -45,7 +45,7 @@
   text-decoration: none;
   margin-bottom: 16px;
 }
-.footer-logo-img { width: 32px; height: 32px; object-fit: contain; opacity: .85; }
+.footer-logo-img { width: 66px; height: 50px; object-fit: contain; opacity: .85; flex-shrink: 0; }
 .footer-logo-text {
   font-family: 'Geologica', sans-serif;
   font-size: .92rem;

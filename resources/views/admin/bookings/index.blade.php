@@ -30,6 +30,7 @@
                         <th>Пользователь</th>
                         <th>Email</th>
                         <th>Занятие</th>
+                        <th>Когда</th>
                         <th>Статус</th>
                         <th>Действия</th>
                     </tr>
@@ -42,6 +43,7 @@
                             <td><strong>{{ $booking->user->name }}</strong></td>
                             <td>{{ $booking->user->email }}</td>
                             <td>{{ $booking->class_name }}</td>
+                            <td>{{ $booking->booking_schedule_label ?? ($booking->booking_date?->format('d.m.Y') ?? '—') }}</td>
                             <td>
                                 <span class="badge-{{ $booking->status }}">
                                     {{ $booking->status === 'active' ? 'Активна' : ($booking->status === 'cancelled' ? 'Отменена' : 'Завершена') }}
@@ -61,7 +63,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center-inline">Записей пока нет</td>
+                            <td colspan="8" class="text-center-inline">Записей пока нет</td>
                         </tr>
                     @endforelse
                 </tbody>

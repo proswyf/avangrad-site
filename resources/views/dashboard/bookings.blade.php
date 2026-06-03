@@ -44,9 +44,10 @@
             <div class="classes-grid">
                 @forelse($classes as $class)
                     @php
-                        $myActiveBooking = $myBookings->first(
-                            fn($b) => $b->class_name === $class->name && $b->can_be_cancelled
-                        )
+                        $upcomingSessions = $class->upcoming_sessions;
+                        $classUpcomingBookings = $myBookings
+                            ->filter(fn($b) => $b->class_name === $class->name && $b->can_be_cancelled)
+                            ->sortBy(fn($b) => ($b->booking_date?->format('Y-m-d') ?? '') . ' ' . ($b->booking_time_label ?? '99:99'));
                     @endphp
                     <div class="class-card">
                         @if($class->image_url)
@@ -64,24 +65,36 @@
                             <div class="class-description">{{ $class->description }}</div>
                             <div class="class-schedule">{{ $class->schedule }}</div>
 
-                            @if($myActiveBooking)
-                                <div class="booking-card-actions">
-                                    <span class="booking-status-pill active">Вы записаны</span>
-                                    <form method="POST" action="{{ route('cancel-booking', $myActiveBooking->id) }}"
-                                        class="inline-form">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="booking-action-button"
-                                            onclick="return confirm('Отменить запись?')">Отменить</button>
-                                    </form>
+                            @if($classUpcomingBookings->isNotEmpty())
+                                <div class="class-booked-slots">
+                                    <div class="class-booked-slots-title">Ваши ближайшие записи</div>
+                                    @foreach($classUpcomingBookings as $classBooking)
+                                        <div class="class-booked-slot">
+                                            <span>{{ $classBooking->booking_schedule_label ?? 'Дата уточняется' }}</span>
+                                            <form method="POST" action="{{ route('cancel-booking', $classBooking->id) }}" class="inline-form">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="booking-action-button" onclick="return confirm('Отменить запись?')">Отменить</button>
+                                            </form>
+                                        </div>
+                                    @endforeach
                                 </div>
-                            @else
-                                <form method="POST" action="{{ route('book-class') }}">
-                                    @csrf
-                                    <input type="hidden" name="class" value="{{ $class->name }}">
-                                    <button type="submit" class="book-button">Записаться</button>
-                                </form>
                             @endif
+
+                            <form method="POST" action="{{ route('book-class') }}" class="class-booking-form">
+                                @csrf
+                                <input type="hidden" name="class" value="{{ $class->name }}">
+                                <label class="class-slot-label" for="booking-slot-{{ $class->id }}">Выберите ближайшее занятие</label>
+                                <select name="booking_date" id="booking-slot-{{ $class->id }}" class="class-slot-select" required>
+                                    <option value="">Выберите дату и время</option>
+                                    @foreach($upcomingSessions as $session)
+                                        <option value="{{ $session['date'] }}">{{ $session['label'] }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="submit" class="book-button" {{ empty($upcomingSessions) ? 'disabled' : '' }}>
+                                    {{ empty($upcomingSessions) ? 'Слоты появятся позже' : 'Записаться' }}
+                                </button>
+                            </form>
                         </div>
                     </div>
                 @empty
@@ -103,8 +116,8 @@
                             <thead>
                                 <tr>
                                     <th>Занятие</th>
+                                    <th>Когда</th>
                                     <th>Расписание</th>
-                                    <th>Дата</th>
                                     <th>Статус</th>
                                     <th>Действие</th>
                                 </tr>
@@ -118,13 +131,13 @@
                                         <td data-label="Занятие">
                                             <div class="booking-table-title">{{ $booking->class_name }}</div>
                                         </td>
+                                        <td data-label="Когда">
+                                            {{ $booking->booking_schedule_label ?? ($booking->booking_date?->format('d.m.Y') ?? '—') }}
+                                        </td>
                                         <td data-label="Расписание">
                                             <span class="booking-schedule-chip">
                                                 {{ $bookedClass?->schedule ?? '—' }}
                                             </span>
-                                        </td>
-                                        <td data-label="Дата">
-                                            {{ $booking->booking_date?->format('d.m.Y') ?? '—' }}
                                         </td>
                                         <td data-label="Статус">
                                             <span class="booking-status-pill {{ $booking->resolved_status }}">

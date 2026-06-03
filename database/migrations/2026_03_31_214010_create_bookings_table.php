@@ -13,6 +13,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('class_name');
             $table->date('booking_date');
+            $table->time('booking_time')->nullable();
             $table->string('status')->default('active');
             $table->timestamps();
         });

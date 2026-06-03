@@ -134,7 +134,21 @@
           <div class="trainer-booking-meta-item">
             <div class="trainer-booking-meta-label">Дата</div>
             <div class="trainer-booking-meta-value">
-              {{ \Carbon\Carbon::parse($tb->booking_date)->format('d.m.Y') }}
+              {{ $tb->booking_date_label ?? '—' }}
+            </div>
+          </div>
+
+          <div class="trainer-booking-meta-item">
+            <div class="trainer-booking-meta-label">День</div>
+            <div class="trainer-booking-meta-value">
+              {{ $tb->booking_weekday_label ?? '—' }}
+            </div>
+          </div>
+
+          <div class="trainer-booking-meta-item">
+            <div class="trainer-booking-meta-label">Время</div>
+            <div class="trainer-booking-meta-value">
+              {{ $tb->booking_time_label ?? 'Уточняется' }}
             </div>
           </div>
 

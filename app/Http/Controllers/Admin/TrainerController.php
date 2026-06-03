@@ -30,6 +30,7 @@ class TrainerController extends Controller
             'certificates' => 'nullable|string',
             'quote' => 'nullable|string',
             'image' => 'nullable|string',
+            'price' => 'nullable|numeric|min:0',
             'sort_order' => 'integer',
         ]);
         
@@ -42,6 +43,7 @@ class TrainerController extends Controller
             'certificates' => $request->certificates,
             'quote' => $request->quote,
             'image' => $request->image,
+            'price' => $request->filled('price') ? $request->price : null,
             'sort_order' => $request->sort_order ?? 0,
             'is_active' => 1,
         ]);
@@ -68,6 +70,7 @@ class TrainerController extends Controller
             'certificates' => 'nullable|string',
             'quote' => 'nullable|string',
             'image' => 'nullable|string',
+            'price' => 'nullable|numeric|min:0',
             'sort_order' => 'integer',
         ]);
         
@@ -80,6 +83,7 @@ class TrainerController extends Controller
             'certificates' => $request->certificates,
             'quote' => $request->quote,
             'image' => $request->image,
+            'price' => $request->filled('price') ? $request->price : null,
             'sort_order' => $request->sort_order ?? 0,
             'is_active' => $request->has('is_active') ? 1 : 0,
         ]);

@@ -56,6 +56,12 @@
             <input type="text" name="image" class="form-input" placeholder="trainer1.jpg">
             <div class="hint">Фото должно лежать в папке public/images/trainers</div>
         </div>
+
+        <div class="form-group">
+            <label class="form-label">Стоимость тренировки</label>
+            <input type="number" name="price" class="form-input" min="0" step="1" placeholder="2500">
+            <div class="hint">Укажите цену за одно занятие в рублях</div>
+        </div>
         
         <div class="form-group">
             <label class="form-label">Порядок сортировки</label>

@@ -56,6 +56,12 @@
             <input type="text" name="image" class="form-input" value="{{ $trainer->image }}">
             <div class="hint">Фото должно лежать в папке public/images/trainers</div>
         </div>
+
+        <div class="form-group">
+            <label class="form-label">Стоимость тренировки</label>
+            <input type="number" name="price" class="form-input" value="{{ $trainer->price }}" min="0" step="1" placeholder="2500">
+            <div class="hint">Цена за одно занятие в рублях</div>
+        </div>
         
         <div class="form-group">
             <label class="form-label">Порядок сортировки</label>
