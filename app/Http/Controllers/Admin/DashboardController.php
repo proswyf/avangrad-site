@@ -288,14 +288,19 @@ public function storeBooking(Request $request)
     ]);
 
     $class = GroupClass::where('name', $request->class_name)->first();
-    
-    Booking::create([
+
+    $bookingData = [
         'user_id' => $request->user_id,
         'class_name' => $request->class_name,
         'booking_date' => $request->booking_date,
-        'booking_time' => $class?->schedule_start_time,
         'status' => $request->status,
-    ]);
+    ];
+
+    if ($this->bookingsHaveTime()) {
+        $bookingData['booking_time'] = $class?->schedule_start_time;
+    }
+
+    Booking::create($bookingData);
     
     return redirect()->route('admin.bookings')->with('success', 'Запись добавлена');
 }
@@ -326,14 +331,19 @@ public function updateBooking(Request $request, $id)
     ]);
 
     $class = GroupClass::where('name', $request->class_name)->first();
-    
-    $booking->update([
+
+    $bookingData = [
         'user_id' => $request->user_id,
         'class_name' => $request->class_name,
         'booking_date' => $request->booking_date,
-        'booking_time' => $class?->schedule_start_time,
         'status' => $request->status,
-    ]);
+    ];
+
+    if ($this->bookingsHaveTime()) {
+        $bookingData['booking_time'] = $class?->schedule_start_time;
+    }
+
+    $booking->update($bookingData);
     
     return redirect()->route('admin.bookings')->with('success', 'Запись обновлена');
 }
@@ -350,5 +360,11 @@ private function clubReviewsReady(): bool
     return Schema::hasTable('club_reviews')
         && Schema::hasColumn('club_reviews', 'status')
         && Schema::hasColumn('club_reviews', 'rating');
+}
+
+private function bookingsHaveTime(): bool
+{
+    return Schema::hasTable('bookings')
+        && Schema::hasColumn('bookings', 'booking_time');
 }
 }
