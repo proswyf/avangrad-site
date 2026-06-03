@@ -12,7 +12,7 @@ class TrainerReviewController extends Controller
     {
         $status = $request->query('status');
 
-        $reviewsQuery = TrainerReview::with('trainer')
+        $reviewsQuery = TrainerReview::with(['trainer', 'user'])
             ->latest();
 
         if (in_array($status, ['pending', 'approved', 'rejected'], true)) {

@@ -46,7 +46,9 @@
                         <span class="status-badge status-{{ $review->status }}">
                             {{ $review->status === 'pending' ? 'Ожидает' : ($review->status === 'approved' ? 'Одобрен' : 'Отклонен') }}
                         </span>
-                        <div class="review-admin-date">{{ $review->created_at->format('d.m.Y H:i') }}</div>
+                        <div class="review-admin-date">
+                            {{ $review->created_at?->format('d.m.Y H:i') ?? 'Дата не указана' }}
+                        </div>
                     </div>
                 </div>
 
