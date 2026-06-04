@@ -35,6 +35,11 @@
             <label class="form-label">Период</label>
             <input type="text" name="period" class="form-input" value="{{ $tariff->period }}" required>
         </div>
+
+        <div class="form-group">
+            <label class="form-label">Краткое описание</label>
+            <textarea name="description" class="form-textarea" rows="4" placeholder="Опишите, кому подходит тариф и что в него входит.">{{ $tariff->description }}</textarea>
+        </div>
         
         <div class="form-group">
             <label class="form-label">Преимущества (каждое с новой строки)</label>

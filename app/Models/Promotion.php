@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Promotion extends Model
 {
@@ -19,4 +20,27 @@ class Promotion extends Model
         'valid_to' => 'date',
         'is_active' => 'boolean',
     ];
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (blank($this->image)) {
+            return null;
+        }
+
+        $image = ltrim($this->image, '/');
+
+        if (Str::startsWith($image, ['http://', 'https://'])) {
+            return $image;
+        }
+
+        if (Str::startsWith($image, 'images/')) {
+            return asset($image);
+        }
+
+        if (Str::startsWith($image, 'promotions/')) {
+            return asset('images/' . $image);
+        }
+
+        return asset('images/promotions/' . $image);
+    }
 }

@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Admin\Concerns\HandlesImageUploads;
 use App\Models\GroupClass;
 use Illuminate\Http\Request;
 
 class GroupClassController extends Controller
 {
+    use HandlesImageUploads;
+
     public function index()
     {
         $classes = GroupClass::orderBy('name')->get();
@@ -25,13 +28,15 @@ class GroupClassController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'required|string|unique:group_classes',
             'description' => 'required|string',
-            'image' => 'nullable|string',
+            'image_file' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:5120',
             'instructor' => 'required|string',
             'duration' => 'required|integer',
             'max_people' => 'required|integer',
             'schedule' => 'required|string',
             'days' => 'nullable',
         ]);
+
+        $image = $this->storeImageUpload($request->file('image_file'), 'classes');
         
         // Преобразуем дни в массив
         $days = $request->days;
@@ -46,7 +51,7 @@ class GroupClassController extends Controller
             'name' => $request->name,
             'slug' => $request->slug,
             'description' => $request->description,
-            'image' => $request->image,
+            'image' => $image,
             'instructor' => $request->instructor,
             'duration' => $request->duration,
             'max_people' => $request->max_people,
@@ -72,13 +77,15 @@ class GroupClassController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'required|string|unique:group_classes,slug,' . $id,
             'description' => 'required|string',
-            'image' => 'nullable|string',
+            'image_file' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:5120',
             'instructor' => 'required|string',
             'duration' => 'required|integer',
             'max_people' => 'required|integer',
             'schedule' => 'required|string',
             'days' => 'nullable',
         ]);
+
+        $image = $this->storeImageUpload($request->file('image_file'), 'classes') ?? $class->image;
         
         // Преобразуем дни в массив
         $days = $request->days;
@@ -93,7 +100,7 @@ class GroupClassController extends Controller
             'name' => $request->name,
             'slug' => $request->slug,
             'description' => $request->description,
-            'image' => $request->image,
+            'image' => $image,
             'instructor' => $request->instructor,
             'duration' => $request->duration,
             'max_people' => $request->max_people,

@@ -16,10 +16,12 @@ use Illuminate\Support\Facades\Route;
 Route::controller(PageController::class)->group(function () {
     Route::get('/', 'home')->name('home');
     Route::get('/tariffs', 'tariffs')->name('tariffs');
+    Route::get('/tariffs/{slug}', 'tariffShow')->name('tariffs.show');
     Route::get('/promotions', 'promotions')->name('promotions');
     Route::get('/group-classes', 'groupClasses')->name('group-classes');
     Route::get('/trainers', 'trainers')->name('trainers');
     Route::get('/trainer/{id}', 'trainerProfile')->name('trainer.profile');
+    Route::get('/trainer/{id}/certificate', 'trainerCertificate')->name('trainer.certificate');
     Route::get('/faq', 'faq')->name('faq');
     Route::get('/obrabotka-personalnyh-dannyh', function () {
         return view('pages.obrabotkapersdann');

@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Admin\Concerns\HandlesImageUploads;
 use App\Models\Promotion;
 use Illuminate\Http\Request;
 
 class PromotionController extends Controller
 {
+    use HandlesImageUploads;
+
     public function index()
     {
         $promotions = Promotion::orderBy('sort_order')->get();
@@ -26,11 +29,13 @@ class PromotionController extends Controller
             'slug' => 'required|string|unique:promotions',
             'description' => 'required|string',
             'badge' => 'nullable|string',
-            'image' => 'nullable|string',
+            'image_file' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:5120',
             'valid_from' => 'nullable|date',
             'valid_to' => 'nullable|date',
             'sort_order' => 'integer',
         ]);
+
+        $image = $this->storeImageUpload($request->file('image_file'), 'promotions');
         
         Promotion::create([
             'title' => $request->title,
@@ -38,7 +43,7 @@ class PromotionController extends Controller
             'description' => $request->description,
             'details' => $request->details,
             'badge' => $request->badge,
-            'image' => $request->image,
+            'image' => $image,
             'valid_from' => $request->valid_from,
             'valid_to' => $request->valid_to,
             'sort_order' => $request->sort_order ?? 0,
@@ -63,11 +68,13 @@ class PromotionController extends Controller
             'slug' => 'required|string|unique:promotions,slug,' . $id,
             'description' => 'required|string',
             'badge' => 'nullable|string',
-            'image' => 'nullable|string',
+            'image_file' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:5120',
             'valid_from' => 'nullable|date',
             'valid_to' => 'nullable|date',
             'sort_order' => 'integer',
         ]);
+
+        $image = $this->storeImageUpload($request->file('image_file'), 'promotions') ?? $promotion->image;
         
         $promotion->update([
             'title' => $request->title,
@@ -75,7 +82,7 @@ class PromotionController extends Controller
             'description' => $request->description,
             'details' => $request->details,
             'badge' => $request->badge,
-            'image' => $request->image,
+            'image' => $image,
             'valid_from' => $request->valid_from,
             'valid_to' => $request->valid_to,
             'sort_order' => $request->sort_order ?? 0,

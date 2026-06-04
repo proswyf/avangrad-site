@@ -7,58 +7,77 @@
 @endpush
 
 @section('content')
+@php
+    $clientName = $booking->user?->name ?? 'Клиент удален';
+    $clientEmail = $booking->user?->email ?? 'Email недоступен';
+    $statusLabel = $booking->status === 'pending'
+        ? 'Ожидает'
+        : ($booking->status === 'confirmed'
+            ? 'Подтверждена'
+            : ($booking->status === 'cancelled' ? 'Отменена' : 'Завершена'));
+    $statusClass = $booking->status === 'pending'
+        ? 'show-badge show-badge--warn'
+        : ($booking->status === 'confirmed'
+            ? 'show-badge show-badge--ok'
+            : ($booking->status === 'cancelled' ? 'show-badge show-badge--danger' : 'show-badge show-badge--info'));
+@endphp
 
-<div class="booking-container">
-    <div class="booking-header">
-        <h1>Заявка #{{ $booking->id }}</h1>
-        <p>Клиент: {{ $booking->user->name }}</p>
+<div class="show-container">
+    <div class="show-header">
+        <p class="show-eyebrow">Просмотр заявки</p>
+        <h1 class="show-title">Заявка к тренеру #{{ $booking->id }}</h1>
+        <p class="show-subtitle">{{ $clientName }} · {{ $clientEmail }}</p>
     </div>
     
-    <div class="info-row">
-        <div class="info-label">Дата заявки</div>
-        <div class="info-value">{{ $booking->created_at->format('d.m.Y H:i') }}</div>
+    <div class="show-row">
+        <div class="show-label">Дата заявки</div>
+        <div class="show-value">{{ $booking->created_at->format('d.m.Y H:i') }}</div>
     </div>
     
-    <div class="info-row">
-        <div class="info-label">Клиент</div>
-        <div class="info-value">{{ $booking->user->name }} ({{ $booking->user->email }})</div>
+    <div class="show-row">
+        <div class="show-label">Клиент</div>
+        <div class="show-value">
+            <strong>{{ $clientName }}</strong>
+            <small>{{ $clientEmail }}</small>
+        </div>
     </div>
     
-    <div class="info-row">
-        <div class="info-label">Телефон</div>
-        <div class="info-value">{{ $booking->phone }}</div>
+    <div class="show-row">
+        <div class="show-label">Телефон</div>
+        <div class="show-value">{{ $booking->phone ?: 'Не указан' }}</div>
     </div>
     
-    <div class="info-row">
-        <div class="info-label">Тренер</div>
-        <div class="info-value">{{ $booking->trainer_name }}</div>
+    <div class="show-row">
+        <div class="show-label">Тренер</div>
+        <div class="show-value">{{ $booking->trainer_name }}</div>
     </div>
     
-    <div class="info-row">
-        <div class="info-label">Дата тренировки</div>
-        <div class="info-value">{{ $booking->booking_date_label ?? '—' }}</div>
+    <div class="show-row">
+        <div class="show-label">Дата тренировки</div>
+        <div class="show-value">{{ $booking->booking_date_label ?? '—' }}</div>
     </div>
-
-    <div class="info-row">
-        <div class="info-label">День недели</div>
-        <div class="info-value">{{ $booking->booking_weekday_label ?? '—' }}</div>
+    
+    <div class="show-row">
+        <div class="show-label">День недели</div>
+        <div class="show-value">{{ $booking->booking_weekday_label ?? '—' }}</div>
     </div>
-
-    <div class="info-row">
-        <div class="info-label">Время тренировки</div>
-        <div class="info-value">{{ $booking->booking_time_label ?? 'Уточняется' }}</div>
+    
+    <div class="show-row">
+        <div class="show-label">Время тренировки</div>
+        <div class="show-value">{{ $booking->booking_time_label ?? 'Уточняется' }}</div>
     </div>
     
     @if($booking->comment)
-    <div class="info-row">
-        <div class="info-label">Комментарий</div>
-        <div class="info-value">{{ $booking->comment }}</div>
+    <div class="show-row">
+        <div class="show-label">Комментарий</div>
+        <div class="show-value show-value--text">{{ $booking->comment }}</div>
     </div>
     @endif
     
-    <div class="info-row">
-        <div class="info-label">Статус</div>
-        <div class="info-value">
+    <div class="show-row">
+        <div class="show-label">Статус</div>
+        <div class="show-value show-value--form">
+            <span class="{{ $statusClass }}">{{ $statusLabel }}</span>
             <form action="{{ route('admin.trainer-bookings.status', $booking->id) }}" method="POST" class="inline-form">
                 @csrf
                 @method('PUT')
@@ -69,13 +88,10 @@
                     <option value="completed" {{ $booking->status == 'completed' ? 'selected' : '' }}>Завершена</option>
                 </select>
             </form>
-            <span class="status-badge status-{{ $booking->status }} status-offset">
-                {{ $booking->status === 'pending' ? 'Ожидает' : ($booking->status === 'confirmed' ? 'Подтверждена' : ($booking->status === 'cancelled' ? 'Отменена' : 'Завершена')) }}
-            </span>
         </div>
     </div>
     
-    <div class="text-center-inline">
+    <div class="show-footer">
         <a href="{{ route('admin.trainer-bookings') }}" class="btn-back">← Назад к списку</a>
     </div>
 </div>

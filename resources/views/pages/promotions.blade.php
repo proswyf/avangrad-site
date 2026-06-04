@@ -68,9 +68,9 @@
 
         <div class="promo-card reveal-card {{ $isLocked ? 'promo-card--locked' : '' }}">
 
-          @if($promo->image)
+          @if($promo->image_url)
             <div class="promo-img-wrap">
-              <img src="{{ asset('images/promotions/' . $promo->image) }}" alt="{{ $promo->title }}">
+              <img src="{{ $promo->image_url }}" alt="{{ $promo->title }}">
               @if($promo->badge)
                 <div class="promo-badge">{{ $promo->badge }}</div>
               @endif
@@ -87,14 +87,14 @@
           @endif
 
           <div class="promo-body">
-            @if(!$promo->image && $promo->badge)
+            @if(!$promo->image_url && $promo->badge)
               <div class="promo-badge promo-badge--inline">{{ $promo->badge }}</div>
             @endif
 
             <div class="promo-title">{{ $promo->title }}</div>
             <div class="promo-desc">{{ $promo->description }}</div>
 
-            @if(!$promo->image && $promo->valid_to)
+            @if(!$promo->image_url && $promo->valid_to)
               <div class="promo-deadline promo-deadline--inline">
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                   <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/>

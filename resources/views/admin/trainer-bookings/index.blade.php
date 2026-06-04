@@ -34,25 +34,26 @@
                     <th>Телефон</th>
                     <th>Статус</th>
                     <th>Действия</th>
-                </thead>
+                </tr>
+            </thead>
             <tbody>
                 @forelse($bookings as $booking)
                 <tr>
-                    <td>{{ $booking->id }}</td>
-                    <td>{{ $booking->created_at->format('d.m.Y H:i') }}</td>
-                    <td><strong>{{ $booking->user->name }}</strong><br><small>{{ $booking->user->email }}</small></td>
-                    <td>{{ $booking->trainer_name }}</td>
-                    <td>
+                    <td data-label="ID">{{ $booking->id }}</td>
+                    <td data-label="Дата заявки">{{ $booking->created_at->format('d.m.Y H:i') }}</td>
+                    <td data-label="Клиент"><strong>{{ $booking->user?->name ?? 'Клиент удален' }}</strong><br><small>{{ $booking->user?->email ?? 'Email недоступен' }}</small></td>
+                    <td data-label="Тренер">{{ $booking->trainer_name }}</td>
+                    <td data-label="Дата тренировки">
                         <strong>{{ $booking->booking_date_label ?? '—' }}</strong><br>
                         <small>{{ $booking->booking_weekday_label ?? '—' }}{{ $booking->booking_time_label ? ', ' . $booking->booking_time_label : '' }}</small>
                     </td>
-                    <td>{{ $booking->phone }}</td>
-                    <td>
+                    <td data-label="Телефон">{{ $booking->phone ?: 'Не указан' }}</td>
+                    <td data-label="Статус">
                         <span class="status-badge status-{{ $booking->status }}">
                             {{ $booking->status === 'pending' ? 'Ожидает' : ($booking->status === 'confirmed' ? 'Подтверждена' : ($booking->status === 'cancelled' ? 'Отменена' : 'Завершена')) }}
                         </span>
                     </td>
-                    <td>
+                    <td data-label="Действия">
                         <a href="{{ route('admin.trainer-bookings.show', $booking->id) }}" class="btn-view">Просмотр</a>
                         <form action="{{ route('admin.trainer-bookings.delete', $booking->id) }}" method="POST" class="inline-form">
                             @csrf

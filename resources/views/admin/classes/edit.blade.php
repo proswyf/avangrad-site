@@ -12,7 +12,7 @@
     <a href="{{ route('admin.classes.index') }}" class="btn-back">← Назад к списку</a>
     <h1>Редактировать занятие</h1>
     
-    <form action="{{ route('admin.classes.update', $class->id) }}" method="POST" id="classForm">
+    <form action="{{ route('admin.classes.update', $class->id) }}" method="POST" id="classForm" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         
@@ -33,8 +33,12 @@
         
         <div class="form-group">
             <label class="form-label">Изображение</label>
-            <input type="text" name="image" class="form-input" value="{{ $class->image }}" placeholder="yoga.jpg">
-            <div class="hint">public/images/classes</div>
+            <input type="file" name="image_file" class="form-input" accept=".jpg,.jpeg,.png,.webp,.gif">
+            <div class="hint">Загрузите новое изображение, если хотите заменить текущее</div>
+            @if($class->image_url)
+                <div class="hint">Текущее изображение</div>
+                <img src="{{ $class->image_url }}" class="image-thumb-round" alt="{{ $class->name }}">
+            @endif
         </div>
         
         <div class="form-group">

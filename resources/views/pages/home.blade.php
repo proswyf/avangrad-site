@@ -319,14 +319,17 @@
             <div class="tariff-period">в {{ $tariff->period }}</div>
             <div class="tariff-features">
               @php $features = is_array($tariff->features) ? $tariff->features : json_decode($tariff->features, true); @endphp
-              @foreach($features as $feature)
+              @foreach($features ?? [] as $feature)
                 <div class="feature-item">
                   <div class="feature-icon">✓</div>
                   <div>{{ $feature }}</div>
                 </div>
               @endforeach
             </div>
-            <a href="{{ route('choose-tariff') }}" class="tariff-btn">Выбрать тариф</a>
+            <div class="tariff-actions">
+              <a href="{{ route('tariffs.show', $tariff->slug) }}" class="tariff-btn tariff-btn-secondary">Подробнее о тарифе</a>
+              <a href="{{ route('choose-tariff') }}" class="tariff-btn">Выбрать тариф</a>
+            </div>
           </div>
         @empty
           <div class="empty-on-dark">
@@ -349,9 +352,24 @@
           <h2 class="heading-xl">Наши тренеры</h2>
           <p class="subtext">Профессионалы своего дела, готовые привести к результату.</p>
         </div>
+        <div class="trainers-nav" aria-label="Навигация по тренерам">
+          <button type="button" class="trainers-nav-btn" data-trainers-scroll="prev" aria-label="Прокрутить тренеров влево">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M11.5 3.5L6 9l5.5 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+          <button type="button" class="trainers-nav-btn" data-trainers-scroll="next" aria-label="Прокрутить тренеров вправо">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M6.5 3.5L12 9l-5.5 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <div class="trainers-grid">
+      <div class="trainers-track-shell">
+        <div class="trainers-grid" id="trainers-scroll-row">
         @forelse($trainers as $trainer)
           <div class="trainer-card reveal-card">
             <div class="tcard-glow"></div>
@@ -406,6 +424,7 @@
             Тренеры временно недоступны
           </div>
         @endforelse
+        </div>
       </div>
     </div>
   </section>
@@ -667,6 +686,44 @@
           card.style.transition = 'transform .35s cubic-bezier(.25,.46,.45,.94), box-shadow .25s ease, border-color .25s ease, opacity .65s ease, translate .65s ease';
         });
       });
+
+      /* ══════════════════════════════════════════
+         TRAINERS HORIZONTAL SCROLL
+      ══════════════════════════════════════════ */
+      const trainersRow = document.getElementById('trainers-scroll-row');
+      const trainerScrollButtons = document.querySelectorAll('[data-trainers-scroll]');
+
+      if (trainersRow && trainerScrollButtons.length) {
+        const syncTrainerNav = () => {
+          const maxScrollLeft = trainersRow.scrollWidth - trainersRow.clientWidth - 4;
+          const prevButton = document.querySelector('[data-trainers-scroll="prev"]');
+          const nextButton = document.querySelector('[data-trainers-scroll="next"]');
+
+          if (prevButton) prevButton.disabled = trainersRow.scrollLeft <= 4;
+          if (nextButton) nextButton.disabled = trainersRow.scrollLeft >= maxScrollLeft;
+        };
+
+        trainerScrollButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            const firstCard = trainersRow.querySelector('.trainer-card');
+            const styles = window.getComputedStyle(trainersRow);
+            const gap = parseFloat(styles.gap || styles.columnGap || '0');
+            const scrollAmount = firstCard
+              ? firstCard.getBoundingClientRect().width + gap
+              : trainersRow.clientWidth * 0.9;
+            const direction = button.dataset.trainersScroll === 'next' ? 1 : -1;
+
+            trainersRow.scrollBy({
+              left: scrollAmount * direction,
+              behavior: 'smooth'
+            });
+          });
+        });
+
+        trainersRow.addEventListener('scroll', syncTrainerNav, { passive: true });
+        window.addEventListener('resize', syncTrainerNav);
+        syncTrainerNav();
+      }
 
       /* ══════════════════════════════════════════
          SCROLL REVEAL

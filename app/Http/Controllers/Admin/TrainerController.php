@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Admin\Concerns\HandlesImageUploads;
 use App\Models\Trainer;
 use Illuminate\Http\Request;
 
 class TrainerController extends Controller
 {
+    use HandlesImageUploads;
+
     public function index()
     {
         $trainers = Trainer::orderBy('sort_order')->get();
@@ -29,10 +32,12 @@ class TrainerController extends Controller
             'specialization' => 'required|string',
             'certificates' => 'nullable|string',
             'quote' => 'nullable|string',
-            'image' => 'nullable|string',
+            'image_file' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:5120',
             'price' => 'nullable|numeric|min:0',
             'sort_order' => 'integer',
         ]);
+
+        $image = $this->storeImageUpload($request->file('image_file'), 'trainers');
         
         Trainer::create([
             'name' => $request->name,
@@ -42,7 +47,7 @@ class TrainerController extends Controller
             'specialization' => $request->specialization,
             'certificates' => $request->certificates,
             'quote' => $request->quote,
-            'image' => $request->image,
+            'image' => $image,
             'price' => $request->filled('price') ? $request->price : null,
             'sort_order' => $request->sort_order ?? 0,
             'is_active' => 1,
@@ -69,10 +74,12 @@ class TrainerController extends Controller
             'specialization' => 'required|string',
             'certificates' => 'nullable|string',
             'quote' => 'nullable|string',
-            'image' => 'nullable|string',
+            'image_file' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:5120',
             'price' => 'nullable|numeric|min:0',
             'sort_order' => 'integer',
         ]);
+
+        $image = $this->storeImageUpload($request->file('image_file'), 'trainers') ?? $trainer->image;
         
         $trainer->update([
             'name' => $request->name,
@@ -82,7 +89,7 @@ class TrainerController extends Controller
             'specialization' => $request->specialization,
             'certificates' => $request->certificates,
             'quote' => $request->quote,
-            'image' => $request->image,
+            'image' => $image,
             'price' => $request->filled('price') ? $request->price : null,
             'sort_order' => $request->sort_order ?? 0,
             'is_active' => $request->has('is_active') ? 1 : 0,

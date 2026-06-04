@@ -12,7 +12,7 @@
     <a href="{{ route('admin.trainers.index') }}" class="btn-back">← Назад к списку</a>
     <h1>Редактировать тренера</h1>
     
-    <form action="{{ route('admin.trainers.update', $trainer->id) }}" method="POST">
+    <form action="{{ route('admin.trainers.update', $trainer->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         
@@ -52,9 +52,13 @@
         </div>
         
         <div class="form-group">
-            <label class="form-label">Изображение</label>
-            <input type="text" name="image" class="form-input" value="{{ $trainer->image }}">
-            <div class="hint">Фото должно лежать в папке public/images/trainers</div>
+            <label class="form-label">Фотография</label>
+            <input type="file" name="image_file" class="form-input" accept=".jpg,.jpeg,.png,.webp,.gif">
+            <div class="hint">Загрузите новую фотографию, если хотите заменить текущую</div>
+            @if($trainer->image_url)
+                <div class="hint">Текущее изображение</div>
+                <img src="{{ $trainer->image_url }}" class="image-thumb-round" alt="{{ $trainer->name }}">
+            @endif
         </div>
 
         <div class="form-group">

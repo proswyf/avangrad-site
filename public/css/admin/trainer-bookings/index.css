@@ -1,2 +1,86 @@
-﻿@import url('/css/admin/admin-legacy.css');
+@import url('/css/admin/admin-legacy.css');
 
+.page-header {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.page-header h1 {
+    width: 100%;
+    flex: none;
+}
+
+.admin-table td:nth-child(2),
+.admin-table td:nth-child(5),
+.admin-table td:nth-child(6) {
+    white-space: nowrap;
+}
+
+.admin-table td:nth-child(3),
+.admin-table td:nth-child(4),
+.admin-table td:nth-child(5) {
+    min-width: 0;
+}
+
+.admin-table td:nth-child(3) strong,
+.admin-table td:nth-child(5) strong {
+    display: inline-block;
+    color: var(--ink);
+    font-weight: 600;
+}
+
+.admin-table td:nth-child(3) small,
+.admin-table td:nth-child(5) small {
+    display: block;
+    margin-top: 2px;
+    color: var(--ink-muted);
+    line-height: 1.45;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    white-space: nowrap;
+}
+
+.status-badge.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge.status-confirmed {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-badge.status-cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-badge.status-completed {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.admin-table td:last-child {
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    .admin-table td:nth-child(2),
+    .admin-table td:nth-child(5),
+    .admin-table td:nth-child(6) {
+        white-space: normal;
+    }
+
+    .admin-table td:last-child {
+        justify-content: flex-start;
+    }
+}

@@ -10,7 +10,9 @@ use App\Models\Promotion;
 use App\Models\Tariff;
 use App\Models\Trainer;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class PageController extends Controller
 {
@@ -92,11 +94,34 @@ class PageController extends Controller
         return view('pages.trainer-profile', compact('trainer', 'reviews', 'userReview'));
     }
 
+    public function trainerCertificate($id)
+    {
+        $trainer = Trainer::findOrFail($id);
+        $certificateImageUrl = $this->resolveTrainerCertificateImage($trainer);
+
+        return view('pages.trainer-certificate', compact('trainer', 'certificateImageUrl'));
+    }
+
     public function tariffs()
     {
         $tariffs = Tariff::where('is_active', true)->orderBy('sort_order')->get();
 
         return view('pages.tariffs', compact('tariffs'));
+    }
+
+    public function tariffShow($slug)
+    {
+        $tariff = Tariff::where('is_active', true)
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        $otherTariffs = Tariff::where('is_active', true)
+            ->where('id', '!=', $tariff->id)
+            ->orderBy('sort_order')
+            ->take(3)
+            ->get();
+
+        return view('pages.tariff-show', compact('tariff', 'otherTariffs'));
     }
 
     public function promotions()
@@ -170,5 +195,49 @@ class PageController extends Controller
         return Schema::hasTable('club_reviews')
             && Schema::hasColumn('club_reviews', 'status')
             && Schema::hasColumn('club_reviews', 'rating');
+    }
+
+    private function resolveTrainerCertificateImage(Trainer $trainer): ?string
+    {
+        $certificateMap = [
+            'Алексей Смирнов' => 'AlekseiSmirnov.jpg',
+            'Мария Волкова' => 'MariaVolkova.jpg',
+            'Дмитрий Ковалев' => 'DmitriKovalev.jpg',
+            'Анна Кузнецова' => 'AnnaKyznecova.jpg',
+            'Игорь Морозов' => 'IgorMorozov.jpg',
+            'Елена Соколова' => 'ElenaSokolova.jpg',
+        ];
+
+        $filename = $certificateMap[$trainer->name] ?? null;
+
+        if (! $filename) {
+            $fallbackName = Str::of($trainer->name)
+                ->ascii()
+                ->replaceMatches('/[^A-Za-z0-9\\s]/', '')
+                ->squish()
+                ->replace(' ', '')
+                ->toString();
+
+            foreach (['jpg', 'jpeg', 'png', 'webp'] as $extension) {
+                $candidate = $fallbackName . '.' . $extension;
+
+                if (File::exists(public_path('images/sertifikat/' . $candidate))) {
+                    $filename = $candidate;
+                    break;
+                }
+            }
+        }
+
+        if (! $filename) {
+            return null;
+        }
+
+        $relativePath = 'images/sertifikat/' . $filename;
+
+        if (! File::exists(public_path($relativePath))) {
+            return null;
+        }
+
+        return asset($relativePath);
     }
 }

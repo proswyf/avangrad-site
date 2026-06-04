@@ -296,6 +296,24 @@
   transform: translateY(-1px);
 }
 
+.tariff-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.tariff-btn-secondary {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--border-hard);
+}
+
+.tariff-btn-secondary:hover {
+  background: var(--bg-2);
+  color: var(--ink);
+}
+
 /* в”Ђв”Ђ Empty state в”Ђв”Ђ */
 .tp-empty {
   text-align: center;

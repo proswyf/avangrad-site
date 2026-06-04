@@ -12,7 +12,7 @@
     <a href="{{ route('admin.promotions.index') }}" class="btn-back">← Назад к списку</a>
     <h1>Редактировать акцию</h1>
     
-    <form action="{{ route('admin.promotions.update', $promotion->id) }}" method="POST">
+    <form action="{{ route('admin.promotions.update', $promotion->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         
@@ -38,7 +38,12 @@
         
         <div class="form-group">
             <label class="form-label">Изображение</label>
-            <input type="text" name="image" class="form-input" value="{{ $promotion->image }}">
+            <input type="file" name="image_file" class="form-input" accept=".jpg,.jpeg,.png,.webp,.gif">
+            <div class="hint">Загрузите новое изображение, если хотите заменить текущее</div>
+            @if($promotion->image_url)
+                <div class="hint">Текущее изображение</div>
+                <img src="{{ $promotion->image_url }}" class="image-thumb-round" alt="{{ $promotion->title }}">
+            @endif
         </div>
         
         <div class="form-group">

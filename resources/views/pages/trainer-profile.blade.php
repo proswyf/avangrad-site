@@ -69,6 +69,13 @@
 
 <section class="section-wrap">
     <div class="section-inner">
+        @php
+            $specializations = collect(explode(',', (string) ($trainer->specialization ?? '')))
+                ->map(fn ($item) => trim($item))
+                ->filter()
+                ->values();
+        @endphp
+
         <div class="content-grid">
             <div class="feat-group">
                 <div class="feat-block">
@@ -95,11 +102,11 @@
                     </div>
                     <div class="tp-block-body">
                         <div class="feat-tags">
-                            @foreach(explode(',', $trainer->specialization ?? '') as $tag)
-                                @if(trim($tag))
-                                    <span class="feat-tag">{{ trim($tag) }}</span>
-                                @endif
-                            @endforeach
+                            @forelse($specializations as $tag)
+                                <span class="feat-tag">{{ $tag }}</span>
+                            @empty
+                                <span class="feat-tag">Персональный подход</span>
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -119,22 +126,18 @@
                     </div>
                 @endif
 
-                @if($trainer->certificates)
-                    <div class="feat-block">
-                        <div class="feat-block-head">
-                            <div class="feat-block-title">Сертификаты и образование</div>
-                        </div>
-                        <ul class="feat-list">
-                            @foreach(explode(',', $trainer->certificates) as $certificate)
-                                @if(trim($certificate))
-                                    <li>{{ trim($certificate) }}</li>
-                                @endif
-                            @endforeach
-                        </ul>
+                <div class="feat-block tp-certificate-card">
+                    <div class="feat-block-head">
+                        <div class="feat-block-title">Сертификат тренера</div>
                     </div>
-                @endif
-            </div>
+                    <div class="tp-certificate-actions">
+                        <a href="{{ route('trainer.certificate', $trainer->id) }}" class="tp-certificate-link">
+                            Посмотреть сертификат тренера
+                        </a>
+                    </div>
+                </div>
 
+            </div>
             <div class="media-col-wrap">
                 <div class="media-col">
                     <img src="{{ $trainer->image_url }}" alt="{{ $trainer->name }}">

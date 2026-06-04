@@ -12,7 +12,7 @@
     <a href="{{ route('admin.classes.index') }}" class="btn-back">← Назад к списку</a>
     <h1>Добавить групповое занятие</h1>
     
-    <form action="{{ route('admin.classes.store') }}" method="POST" id="classForm">
+    <form action="{{ route('admin.classes.store') }}" method="POST" id="classForm" enctype="multipart/form-data">
         @csrf
         
         <div class="form-group">
@@ -31,9 +31,9 @@
         </div>
         
         <div class="form-group">
-            <label class="form-label">Изображение (имя файла, например: yoga.jpg)</label>
-            <input type="text" name="image" class="form-input" placeholder="yoga.jpg">
-            <div class="hint">public/images/classes</div>
+            <label class="form-label">Изображение</label>
+            <input type="file" name="image_file" class="form-input" accept=".jpg,.jpeg,.png,.webp,.gif">
+            <div class="hint">Загрузите JPG, PNG, WEBP или GIF до 5 МБ</div>
         </div>
         
         <div class="form-group">

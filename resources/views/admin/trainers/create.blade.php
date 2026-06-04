@@ -12,7 +12,7 @@
     <a href="{{ route('admin.trainers.index') }}" class="btn-back">← Назад к списку</a>
     <h1>Добавить тренера</h1>
     
-    <form action="{{ route('admin.trainers.store') }}" method="POST">
+    <form action="{{ route('admin.trainers.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         
         <div class="form-group">
@@ -52,9 +52,9 @@
         </div>
         
         <div class="form-group">
-            <label class="form-label">Изображение (имя файла)</label>
-            <input type="text" name="image" class="form-input" placeholder="trainer1.jpg">
-            <div class="hint">Фото должно лежать в папке public/images/trainers</div>
+            <label class="form-label">Фотография</label>
+            <input type="file" name="image_file" class="form-input" accept=".jpg,.jpeg,.png,.webp,.gif">
+            <div class="hint">Загрузите JPG, PNG, WEBP или GIF до 5 МБ</div>
         </div>
 
         <div class="form-group">

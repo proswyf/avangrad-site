@@ -12,7 +12,7 @@
     <a href="{{ route('admin.promotions.index') }}" class="btn-back">← Назад к списку</a>
     <h1>Добавить акцию</h1>
     
-    <form action="{{ route('admin.promotions.store') }}" method="POST">
+    <form action="{{ route('admin.promotions.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         
         <div class="form-group">
@@ -36,8 +36,9 @@
         </div>
         
         <div class="form-group">
-            <label class="form-label">Изображение (имя файла, например: promo1.jpg)</label>
-            <input type="text" name="image" class="form-input" placeholder="promo1.jpg">
+            <label class="form-label">Изображение</label>
+            <input type="file" name="image_file" class="form-input" accept=".jpg,.jpeg,.png,.webp,.gif">
+            <div class="hint">Загрузите JPG, PNG, WEBP или GIF до 5 МБ</div>
         </div>
         
         <div class="form-group">

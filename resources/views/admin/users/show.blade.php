@@ -7,43 +7,48 @@
 @endpush
 
 @section('content')
+@php
+    $roleLabel = $user->role == 'admin' ? 'Администратор' : 'Пользователь';
+    $roleClass = $user->role == 'admin' ? 'show-badge show-badge--info' : 'show-badge show-badge--neutral';
+@endphp
 
-<div class="user-container">
-    <div class="user-header">
-        <div class="user-avatar">
-            👤
+<div class="show-container">
+    <div class="show-header">
+        <p class="show-eyebrow">Просмотр пользователя</p>
+        <h1 class="show-title">{{ $user->name }}</h1>
+        <p class="show-subtitle">{{ $user->email }}</p>
+    </div>
+    
+    <div class="show-row">
+        <div class="show-label">Email</div>
+        <div class="show-value">{{ $user->email }}</div>
+    </div>
+    
+    <div class="show-row">
+        <div class="show-label">Телефон</div>
+        <div class="show-value">{{ $user->phone ?? 'Не указан' }}</div>
+    </div>
+    
+    <div class="show-row">
+        <div class="show-label">Роль</div>
+        <div class="show-value">
+            <span class="{{ $roleClass }}">{{ $roleLabel }}</span>
         </div>
-        <div class="user-name">{{ $user->name }}</div>
-        <div class="user-role">
-            <span class="badge-{{ $user->role }}">
-                {{ $user->role == 'admin' ? 'Администратор' : 'Пользователь' }}
-            </span>
-        </div>
     </div>
     
-    <div class="info-row">
-        <div class="info-label">Email</div>
-        <div class="info-value">{{ $user->email }}</div>
+    <div class="show-row">
+        <div class="show-label">Абонемент</div>
+        <div class="show-value">{{ $user->tariff_id ?? 'Не выбран' }}</div>
     </div>
     
-    <div class="info-row">
-        <div class="info-label">Телефон</div>
-        <div class="info-value">{{ $user->phone ?? 'Не указан' }}</div>
-    </div>
-    
-    <div class="info-row">
-        <div class="info-label">Абонемент</div>
-        <div class="info-value">{{ $user->tariff_id ?? 'Не выбран' }}</div>
-    </div>
-    
-    <div class="info-row">
-        <div class="info-label">Действует до</div>
-        <div class="info-value">
+    <div class="show-row">
+        <div class="show-label">Действует до</div>
+        <div class="show-value">
             @if($user->tariff_expires_at)
                 @php
                     $isExpired = now()->gt($user->tariff_expires_at);
                 @endphp
-                <span class="{{ $isExpired ? 'badge-expired' : 'badge-active' }}">
+                <span class="{{ $isExpired ? 'show-badge show-badge--danger' : 'show-badge show-badge--ok' }}">
                     {{ \Carbon\Carbon::parse($user->tariff_expires_at)->format('d.m.Y') }}
                     @if($isExpired) (просрочен) @endif
                 </span>
@@ -53,12 +58,12 @@
         </div>
     </div>
     
-    <div class="info-row">
-        <div class="info-label">Дата регистрации</div>
-        <div class="info-value">{{ $user->created_at ? $user->created_at->format('d.m.Y H:i') : '-' }}</div>
+    <div class="show-row">
+        <div class="show-label">Дата регистрации</div>
+        <div class="show-value">{{ $user->created_at ? $user->created_at->format('d.m.Y H:i') : '-' }}</div>
     </div>
     
-    <div class="text-center-inline">
+    <div class="show-footer">
         <a href="{{ route('admin.users') }}" class="btn-back">← Назад к списку</a>
     </div>
 </div>

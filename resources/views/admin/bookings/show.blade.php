@@ -7,50 +7,64 @@
 @endpush
 
 @section('content')
+@php
+    $userName = $booking->user?->name ?? 'Пользователь удален';
+    $userEmail = $booking->user?->email ?? 'Email недоступен';
+    $statusLabel = $booking->status === 'active' ? 'Активна' : ($booking->status === 'cancelled' ? 'Отменена' : 'Завершена');
+    $statusClass = $booking->status === 'active'
+        ? 'show-badge show-badge--ok'
+        : ($booking->status === 'cancelled' ? 'show-badge show-badge--danger' : 'show-badge show-badge--info');
+@endphp
 
-<div class="booking-container">
-    <div class="booking-header">
-        <h1>Запись на тренировку #{{ $booking->id }}</h1>
+<div class="show-container">
+    <div class="show-header">
+        <p class="show-eyebrow">Просмотр записи</p>
+        <h1 class="show-title">Запись на тренировку #{{ $booking->id }}</h1>
+        <p class="show-subtitle">{{ $userName }} · {{ $userEmail }}</p>
     </div>
     
-    <div class="info-row">
-        <div class="info-label">Дата записи</div>
-        <div class="info-value">{{ $booking->created_at->format('d.m.Y H:i') }}</div>
+    <div class="show-row">
+        <div class="show-label">Дата записи</div>
+        <div class="show-value">{{ $booking->created_at->format('d.m.Y H:i') }}</div>
     </div>
     
-    <div class="info-row">
-        <div class="info-label">Пользователь</div>
-        <div class="info-value">{{ $booking->user->name }} ({{ $booking->user->email }})</div>
+    <div class="show-row">
+        <div class="show-label">Пользователь</div>
+        <div class="show-value">
+            <strong>{{ $userName }}</strong>
+            <small>{{ $userEmail }}</small>
+        </div>
     </div>
     
-    <div class="info-row">
-        <div class="info-label">Телефон</div>
-        <div class="info-value">{{ $booking->user->phone ?? 'Не указан' }}</div>
+    <div class="show-row">
+        <div class="show-label">Телефон</div>
+        <div class="show-value">{{ $booking->user?->phone ?? 'Не указан' }}</div>
     </div>
     
-    <div class="info-row">
-        <div class="info-label">Занятие</div>
-        <div class="info-value">{{ $booking->class_name }}</div>
+    <div class="show-row">
+        <div class="show-label">Занятие</div>
+        <div class="show-value">{{ $booking->class_name }}</div>
     </div>
     
-<div class="info-row">
-    <div class="info-label">Дата тренировки</div>
-    <div class="info-value">{{ $booking->booking_date_label ?? '—' }}</div>
-</div>
-
-<div class="info-row">
-    <div class="info-label">День недели</div>
-    <div class="info-value">{{ $booking->booking_weekday_label ?? '—' }}</div>
-</div>
-
-<div class="info-row">
-    <div class="info-label">Время тренировки</div>
-    <div class="info-value">{{ $booking->booking_time_label ?? 'По расписанию' }}</div>
-</div>
+    <div class="show-row">
+        <div class="show-label">Дата тренировки</div>
+        <div class="show-value">{{ $booking->booking_date_label ?? '—' }}</div>
+    </div>
     
-    <div class="info-row">
-        <div class="info-label">Статус</div>
-        <div class="info-value">
+    <div class="show-row">
+        <div class="show-label">День недели</div>
+        <div class="show-value">{{ $booking->booking_weekday_label ?? '—' }}</div>
+    </div>
+    
+    <div class="show-row">
+        <div class="show-label">Время тренировки</div>
+        <div class="show-value">{{ $booking->booking_time_label ?? 'По расписанию' }}</div>
+    </div>
+    
+    <div class="show-row">
+        <div class="show-label">Статус</div>
+        <div class="show-value show-value--form">
+            <span class="{{ $statusClass }}">{{ $statusLabel }}</span>
             <form action="{{ route('admin.bookings.status', $booking->id) }}" method="POST" class="inline-form">
                 @csrf
                 @method('PUT')
@@ -63,7 +77,7 @@
         </div>
     </div>
     
-    <div class="text-center-inline">
+    <div class="show-footer">
         <a href="{{ route('admin.bookings') }}" class="btn-back">← Назад к списку</a>
     </div>
 </div>

@@ -48,7 +48,7 @@
                             ? $tariff->features
                             : json_decode($tariff->features, true);
                     @endphp
-                    @foreach($features as $feature)
+                    @foreach($features ?? [] as $feature)
                     <div class="feature-item">
                         <div class="feature-icon">✓</div>
                         <div>{{ $feature }}</div>
@@ -56,7 +56,10 @@
                     @endforeach
                 </div>
 
-                <a href="{{ route('choose-tariff') }}" class="tariff-btn">Выбрать тариф</a>
+                <div class="tariff-actions">
+                    <a href="{{ route('tariffs.show', $tariff->slug) }}" class="tariff-btn tariff-btn-secondary">Подробнее о тарифе</a>
+                    <a href="{{ route('choose-tariff') }}" class="tariff-btn">Выбрать тариф</a>
+                </div>
             </div>
             @empty
             <div class="tp-empty">Тарифы временно недоступны</div>
